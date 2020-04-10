@@ -6,8 +6,13 @@ public class Main {
 
     public static void main(String[] args) {
         //Zutaten zufügen
-        //todo: Zutatenliste anzeigen
-        printIngredientList();
+                // addIngredient(Name, vegetarisch (true/false), preis (double));
+        //Zutaten aus liste löschen
+                // deleteIngredient (int id)
+        //Preis bearbeiten
+                // updatePrice (int id, double price)
+        //Zutatenliste anzeigen
+                printIngredientList();
 
         //todo: Menü erstellen
         //todo: Menügruppen verwalten
@@ -61,6 +66,60 @@ public class Main {
                 boolean vegetarian = rs.getBoolean("vegetarisch");
                 double price = rs.getDouble("preis");
                 System.out.println(id + "\t| " + name + "| " + vegetarian + "  \t| " + price);
+            }
+
+        } catch (SQLException ex) {
+            throw new Error("Problem", ex);
+        } finally {
+            try {
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException e) {
+                System.out.println(e.getMessage());
+            }
+        }
+    }
+
+    private static void deleteIngredient (int id){
+        Connection conn = null;
+        try {
+            String url = "jdbc:mysql://localhost:3306/lieferservice_gastro?user=root";
+            conn = DriverManager.getConnection(url);
+            String command = "DELETE FROM `zutaten` WHERE `id` = " + id;
+            Statement stmt = conn.createStatement();
+            int ok = stmt.executeUpdate(command);
+            if(ok == 1){
+                System.out.println("ingredient was successfully deleted");
+            } else {
+                System.out.println("something went wrong");
+            }
+
+        } catch (SQLException ex) {
+            throw new Error("Problem", ex);
+        } finally {
+            try {
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException e) {
+                System.out.println(e.getMessage());
+            }
+        }
+    }
+
+    private static void updatePrice (int id, double price){
+        Connection conn = null;
+        try {
+            String url = "jdbc:mysql://localhost:3306/lieferservice_gastro?user=root";
+            conn = DriverManager.getConnection(url);
+            String command = "UPDATE `zutaten` SET `preis`=" + price + " WHERE `id` = " + id;
+            Statement stmt = conn.createStatement();
+            int ok = stmt.executeUpdate(command);
+            if(ok == 1){
+                System.out.println("price was successfully updated");
+            } else {
+                System.out.println("something went wrong");
             }
 
         } catch (SQLException ex) {
