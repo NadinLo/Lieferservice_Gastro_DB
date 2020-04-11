@@ -1,6 +1,7 @@
 package com.company;
 
 import java.sql.*;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -8,6 +9,7 @@ public class Main {
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
+        DecimalFormat df = new DecimalFormat("##.##");
         //Zutaten zufügen
                 // addIngredient(Name, vegetarisch (true/false), preis (double));
         //Zutaten aus liste löschen
@@ -19,7 +21,6 @@ public class Main {
         //Menügruppen anzeigen
                 printMenuTypes();
         //Menü erstellen
-        //todo: Zutatenmix
         System.out.println("NEW MENU");
         ArrayList<Integer> ingredients = null;
         boolean creationOK = false;
@@ -48,7 +49,7 @@ public class Main {
             System.out.print("Your creation:\n" +
                     "menu name: " + name + "\n" +
                     "menu type: " + menuType + "\n" +
-                    "price: " + price + "\n" +
+                    "price: " + df.format(price) + "\n" +
                     "ingredients: ");
             for (int i = 0; i < ingredients.size(); i++) {
                 System.out.print(getIngredient(ingredients.get(i)) + ", ");
@@ -254,7 +255,7 @@ public class Main {
             String url = "jdbc:mysql://localhost:3306/lieferservice_gastro?user=root";
             conn = DriverManager.getConnection(url);
             String command = "INSERT INTO `menü`" +
-                    "(`name`, `menü_gruppe`, preis" +
+                    "(`name`, `menü_gruppe`, preis)" +
                     "VALUES ('" + name + "', " + menuType + ", " + price + ")";
             Statement stmt = conn.createStatement();
             int ok = stmt.executeUpdate(command);
@@ -267,7 +268,7 @@ public class Main {
             int ok2 = 0;
             for (int i = 0; i < ingredients.size(); i++) {
                 command = "INSERT INTO `zutatenmix`(`menü_id`, `zutaten_id`) " +
-                        "VALUES (" + number + "," + ingredients.get(i);
+                        "VALUES (" + number + "," + ingredients.get(i) + ")";
                 ok2 = stmt.executeUpdate(command);
             }
             if(ok == 1 && ok2 == 1){
