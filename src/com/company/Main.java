@@ -18,19 +18,23 @@ public class Main {
                 printIngredientList();
         //Menügruppen anzeigen
                 printMenuTypes();
-        //todo: Menü erstellen
+        //Menü erstellen
+        //todo: Zutatenmix
         System.out.println("NEW MENU");
-        boolean creationOK = false;
         ArrayList<Integer> ingredients = null;
+        boolean creationOK = false;
         String name = null;
         int menuType = 0;
+        double price = 0;
         // Menü-Eigenschaften wählen und Auswahl bestätigen
         while (!creationOK) {
-            ingredients = new ArrayList<>(10);
+            ingredients = new ArrayList<>();
             System.out.println("Enter the name for the new menu:");
             name = scanner.nextLine();
             System.out.println("Enter the id of the menu's type:");
             menuType = scanner.nextInt();
+            System.out.println("Enter the price the menu should cost:");
+            price = scanner.nextDouble();
             int id = 0;
             System.out.println("Add one ingredient. Therefor enter the right id and press enter.\n" +
                     "You need to add at least 2 ingredients and maximum 10. If you want to finish press -1");
@@ -39,19 +43,14 @@ public class Main {
                 id = scanner.nextInt();
                 if(id != -1) {
                     ingredients.add(id);
-                }
-                else{
-                    while (i < 10){
-                        ingredients.add(null);
-                        i++;
-                    }
-                }
+                } else { break;}
             }
             System.out.print("Your creation:\n" +
                     "menu name: " + name + "\n" +
                     "menu type: " + menuType + "\n" +
+                    "price: " + price + "\n" +
                     "ingredients: ");
-            for (int i = 0; i < ingredients.size() && ingredients.get(i) != null; i++) {
+            for (int i = 0; i < ingredients.size(); i++) {
                 System.out.print(getIngredient(ingredients.get(i)) + ", ");
             }
             System.out.println();
@@ -63,7 +62,7 @@ public class Main {
                 System.out.println("no Problem. Enter everything again.");
             }
         }
-        addNewMenu(name, menuType, ingredients);
+        addNewMenu(name, menuType, price, ingredients);
 
 
         //todo: Liefergebiet verwalten
@@ -249,28 +248,29 @@ public class Main {
         }
     }
 
-    private static void addNewMenu (String name, int menuType, ArrayList<Integer> ingredients){
+    private static void addNewMenu (String name, int menuType, double price, ArrayList<Integer> ingredients){
         Connection conn = null;
         try {
             String url = "jdbc:mysql://localhost:3306/lieferservice_gastro?user=root";
             conn = DriverManager.getConnection(url);
             String command = "INSERT INTO `menü`" +
-                    "(`name`, `menü_gruppe`, " +
-                    "`zutat_1`, `zutat_2`, `zutat_3`, `zutat_4`, `zutat_5`, `zutat_6`, `zutat_7`, `zutat_8`, `zutat_9`, `zutat_10`) " +
-                    "VALUES ('" + name + "', " + menuType + ", " +
-                    ingredients.get(0) + ", " +
-                    ingredients.get(1) + ", " +
-                    ingredients.get(2) + ", " +
-                    ingredients.get(3) + ", " +
-                    ingredients.get(4) + ", " +
-                    ingredients.get(5) + ", " +
-                    ingredients.get(6) + ", " +
-                    ingredients.get(7) + ", " +
-                    ingredients.get(8) + ", " +
-                    ingredients.get(9) + ")";
+                    "(`name`, `menü_gruppe`, preis" +
+                    "VALUES ('" + name + "', " + menuType + ", " + price + ")";
             Statement stmt = conn.createStatement();
             int ok = stmt.executeUpdate(command);
-            if(ok == 1){
+            int number = 0;
+            String query = "SELECT `menü_nr.` FROM `menü` WHERE `name` = '" + name + "'";
+            ResultSet rs = stmt.executeQuery(query);
+            while (rs.next()) {
+                number = rs.getInt("menü_nr.");
+            }
+            int ok2 = 0;
+            for (int i = 0; i < ingredients.size(); i++) {
+                command = "INSERT INTO `zutatenmix`(`menü_id`, `zutaten_id`) " +
+                        "VALUES (" + number + "," + ingredients.get(i);
+                ok2 = stmt.executeUpdate(command);
+            }
+            if(ok == 1 && ok2 == 1){
                 System.out.println("menu was successfully added");
             } else {
                 System.out.println("something went wrong");
