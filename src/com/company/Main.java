@@ -24,6 +24,7 @@ public class Main {
                 decision = editingMenu();
             } else if (decision == 2) {
                 //todo: analyzeData();
+                decision = analyzeData();
             } else if (decision == 3) {
                 System.exit(0);
             } else {
@@ -177,8 +178,7 @@ public class Main {
                         System.out.println("no Problem. Enter everything again.");
                     }
                 }
-                addNewMenu(name, menuType, price, ingredients);
-                decision = 0;
+                decision = addNewMenu(name, menuType, price, ingredients);
             }
 
             else if (decision == 2){
@@ -487,7 +487,7 @@ public class Main {
         return 0;
     }
 
-    private static void addNewMenu (String name, int menuType, double price, ArrayList<Integer> ingredients){
+    private static int addNewMenu (String name, int menuType, double price, ArrayList<Integer> ingredients){
         Connection conn = null;
         try {
             String url = "jdbc:mysql://localhost:3306/lieferservice_gastro?user=root";
@@ -526,6 +526,7 @@ public class Main {
                 System.out.println(e.getMessage());
             }
         }
+        return 0;
     }
 
     private static void printMenuIngreds (int menu){
@@ -644,6 +645,48 @@ public class Main {
                 System.out.println(e.getMessage());
             }
         }
+        return 0;
+    }
+
+    private static int analyzeData () {
+        int decision = 0;
+        while (decision == 0) {
+            System.out.println("You have now following possibilities:");
+            System.out.println("1) how many orders were taken place till now?");
+            System.out.println("2) how many orders were taken place for each customer?");
+            System.out.println("3) how many orders were taken place for each location?");
+            System.out.println("4) Sales in total/ per customer/ per location");
+            System.out.println("5) What was soled the most and how often?");
+            System.out.println("6) Order of the sold menus - the most successful is named first");
+            System.out.println("7) finish analyzing program");
+
+            decision = scannerForInt.nextInt();
+            if (decision == 1) {
+                //how many orders were taken place till now?
+                //todo: decision = [Methode]
+            } else if (decision == 2) {
+                //how many orders were taken place for each customer?
+                //todo: decision = [Methode]
+            } else if (decision == 3) {
+                //how many orders were taken place for each location?
+                //todo: decision = [Methode]
+            } else if (decision == 4) {
+                //Sales in total/ per customer/ per location => to next menu
+                //todo: decision = [Methode]
+            } else if (decision == 5) {
+                //What was soled the most and how often?
+                //todo: decision = [Methode]
+            } else if (decision == 6) {
+                //Order of the sold menus - the most successful is named first
+                //todo: decision = [Methode]
+            } else if (decision == 7) {
+                System.out.println("ok - just finished this editing program");
+            } else {
+                System.out.println("This input wasn't correct.");
+                decision = 0;
+            }
+        }
+
         return 0;
     }
 
