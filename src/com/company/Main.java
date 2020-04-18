@@ -6,7 +6,9 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Main {
-    private static Scanner scanner = new Scanner(System.in);
+    private static Scanner scannerForInt = new Scanner(System.in);
+
+    private static Scanner scannerForString = new Scanner(System.in);
 
     private static DecimalFormat df = new DecimalFormat("##.##");
 
@@ -17,7 +19,7 @@ public class Main {
                     "Edeting the menu -- press 1\n " +
                     "Analyze Data -- press 2\n " +
                     "Quit program -- press 3");
-            decision = scanner.nextInt();
+            decision = scannerForInt.nextInt();
             if (decision == 1) {
                 decision = editingMenu();
             } else if (decision == 2) {
@@ -37,25 +39,29 @@ public class Main {
         while (decision == 0) {
             System.out.println("You have now following possibilities:");
             System.out.println("1) show complete list of ingredients");
-            System.out.println("2) show complete list of menus");
-            System.out.println("3) edit ingredients");
-            System.out.println("4) edit menus");
-            System.out.println("5) finish editing program");
+            System.out.println("2) show all menu types");
+            System.out.println("3) show complete list of menus");
+            System.out.println("4) edit ingredients");
+            System.out.println("5) edit menus");
+            System.out.println("6) finish editing program");
 
-            decision = scanner.nextInt();
+            decision = scannerForInt.nextInt();
             if (decision == 1) {
                 //show complete list of ingredients
                 decision = printIngredientList();
-            } else if (decision == 2) {
+            } else if (decision == 2){
+                //show all menu types
+                decision = printMenuTypes();
+            } else if (decision == 3) {
                 //show complete menu
                 decision = printCompleteMenu();
-            } else if (decision == 3) {
+            } else if (decision == 4) {
                 //edit ingredients
                 decision = editIngredients();
-            } else if (decision == 4) {
+            } else if (decision == 5) {
                 //edit menu
                 decision = editMenus();
-            } else if (decision == 5) {
+            } else if (decision == 6) {
                 System.out.println("ok - just finished this editing program");
             } else {
                 System.out.println("This input wasn't correct.");
@@ -78,21 +84,21 @@ public class Main {
             System.out.println("3) edit price");
             System.out.println("4) finish editing program");
 
-            decision = scanner.nextInt();
+            decision = scannerForInt.nextInt();
             if (decision == 1){
                 //add ingredients
                 System.out.println("Enter the name of the new ingredient");
-                String name = scanner.nextLine();
+                String name = scannerForString.nextLine();
                 System.out.println("Is this ingredient vegetarian? Enter 'true' or 'false'");
-                boolean vegetarian = scanner.nextBoolean();
+                boolean vegetarian = scannerForInt.nextBoolean();
                 System.out.println("Enter the price of the ingredient");
-                double price = scanner.nextDouble();
+                double price = scannerForInt.nextDouble();
                 decision = addIngredient(name, vegetarian, price);
             }
             else if (decision == 2){
                 //delete ingredents
                 System.out.println("Enter the ingredient number of the ingredient you want to take off the list");
-                int ingredID = scanner.nextInt();
+                int ingredID = scannerForInt.nextInt();
                 decision = deleteIngredient (ingredID);
 
             }
@@ -101,10 +107,10 @@ public class Main {
                 int ingredID;
                 double price;
                 System.out.println("Enter the ingredient number of the ingredient you want to update the price.");
-                ingredID = scanner.nextInt();
+                ingredID = scannerForInt.nextInt();
                 System.out.println("Enter now the new wanted price");
-                price = scanner.nextDouble();
-                decision = updatePrice(ingredID, price);
+                price = scannerForInt.nextDouble();
+                decision = updatePriceIngred(ingredID, price);
             }
             else if (decision == 4){
                 System.out.println("ok - just finished the editing program");
@@ -127,7 +133,7 @@ public class Main {
             System.out.println("4) delete menu");
             System.out.println("5) finish editing program");
 
-            decision = scanner.nextInt();
+            decision = scannerForInt.nextInt();
             if (decision == 1){
                 //add menu
                 ArrayList<Integer> ingredients = null;
@@ -139,17 +145,17 @@ public class Main {
                 while (!creationOK) {
                     ingredients = new ArrayList<>();
                     System.out.println("Enter the name for the new menu:");
-                    name = scanner.nextLine();
-                    System.out.println("Enter the ingredientID of the menu's type:");
-                    menuType = scanner.nextInt();
+                    name = scannerForString.nextLine();
+                    System.out.println("Enter the Type id of the menu's type:");
+                    menuType = scannerForInt.nextInt();
                     System.out.println("Enter the price the menu should cost:");
-                    price = scanner.nextDouble();
-                    int ingredientID = 0;
+                    price = scannerForInt.nextDouble();
+                    int ingredientID;
                     System.out.println("Add one ingredient. Therefor enter the right ingredient number and press enter.\n" +
                             "You need at least 2 ingredients and maximum 10. If you want to finish press -1");
                     for (int i = 0; i < 10; i++) {
                         System.out.println("Currently your menu has " + i + " ingredients");
-                        ingredientID = scanner.nextInt();
+                        ingredientID = scannerForInt.nextInt();
                         if(ingredientID != -1) {
                             ingredients.add(ingredientID);
                         } else { break;}
@@ -164,7 +170,7 @@ public class Main {
                     }
                     System.out.println();
                     System.out.println("Are you ok with this? enter Yes (Y)/ No (N)");
-                    String yOrn = scanner.next();
+                    String yOrn = scannerForString.nextLine();
                     if (yOrn.equalsIgnoreCase("Y")){
                         creationOK = true;}
                     else if (yOrn.equalsIgnoreCase("N")){
@@ -177,24 +183,36 @@ public class Main {
 
             else if (decision == 2){
                 //update ingredients in menu
-                //todo:
+                //which menu/ delete or add ingredient
+                System.out.println("Please enter the  number of the menu you want to edit.");
+                int menu = scannerForInt.nextInt();
+                printMenuIngreds(menu);
+                System.out.println("Now enter one after another the number of the ingredient you want to add. If you want " +
+                        "to delete single ingredients from the menu list just write \"-\" before the number." +
+                        "Finish your entry with \"0\"");
+                ArrayList <Integer> editIngreds = new ArrayList<>();
+                while (!editIngreds.contains(0)) {
+                    editIngreds.add(scannerForInt.nextInt());
+                }
+                decision = updateIngredInMenu(menu, editIngreds);
             }
 
             else if (decision == 3){
                 //update price
-                //todo: unten stehenden Code auf Menü abändern
-                int ingredID;
+                int menuID;
                 double price;
-                System.out.println("Enter the ingredient number of the ingredient you want to update the price.");
-                ingredID = scanner.nextInt();
+                System.out.println("Enter the number of the menu you want to update the price.");
+                menuID = scannerForInt.nextInt();
                 System.out.println("Enter now the new wanted price");
-                price = scanner.nextDouble();
-                decision = updatePrice(ingredID, price);
+                price = scannerForInt.nextDouble();
+                decision = updatePriceMenu (menuID, price);
             }
 
             else if (decision == 4){
                 //delete menu
-                //todo:
+                System.out.println("Which menu do you want to delete? Please enter the number.");
+                int menuNo = scannerForInt.nextInt();
+                decision = deleteMenu(menuNo);
             }
 
             else if (decision == 5){
@@ -407,7 +425,7 @@ public class Main {
         return 0;
     }
 
-    private static int updatePrice (int id, double price){
+    private static int updatePriceIngred(int id, double price){
         Connection conn = null;
         try {
             String url = "jdbc:mysql://localhost:3306/lieferservice_gastro?user=root";
@@ -435,12 +453,12 @@ public class Main {
         return 0;
     }
 
-    private static void printMenuTypes (){
+    private static int printMenuTypes (){
         Connection conn = null;
         try {
             String url = "jdbc:mysql://localhost:3306/lieferservice_gastro?user=root";
             conn = DriverManager.getConnection(url);
-            String query = "SELECT * FROM `menü_gruppe`";
+            String query = "SELECT * FROM `menu_gruppe`";
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery(query);
             System.out.print("" +
@@ -466,6 +484,7 @@ public class Main {
                 System.out.println(e.getMessage());
             }
         }
+        return 0;
     }
 
     private static void addNewMenu (String name, int menuType, double price, ArrayList<Integer> ingredients){
@@ -473,16 +492,16 @@ public class Main {
         try {
             String url = "jdbc:mysql://localhost:3306/lieferservice_gastro?user=root";
             conn = DriverManager.getConnection(url);
-            String command = "INSERT INTO `menü`" +
-                    "(`name`, `menü_gruppe`, preis)" +
+            String command = "INSERT INTO `menu`" +
+                    "(`name`, `menu_gruppe`, preis)" +
                     "VALUES ('" + name + "', " + menuType + ", " + price + ")";
             Statement stmt = conn.createStatement();
             int ok = stmt.executeUpdate(command);
             int number = 0;
-            String query = "SELECT `menü_nr.` FROM `menü` WHERE `name` = '" + name + "'";
+            String query = "SELECT `menu_nr` FROM `menu` WHERE `name` = '" + name + "'";
             ResultSet rs = stmt.executeQuery(query);
             while (rs.next()) {
-                number = rs.getInt("menü_nr.");
+                number = rs.getInt("menu_nr");
             }
             int ok2 = 0;
             for (Integer ingredient : ingredients) {
@@ -507,6 +526,125 @@ public class Main {
                 System.out.println(e.getMessage());
             }
         }
+    }
+
+    private static void printMenuIngreds (int menu){
+        Connection conn;
+        try {
+            String url = "jdbc:mysql://localhost:3306/lieferservice_gastro?user=root";
+            conn = DriverManager.getConnection(url);
+            Statement stmt = conn.createStatement();
+            String query = "SELECT zutatenmix.menü_id, menu.name AS 'Menü', zutatenmix.zutaten_id, zutaten.name AS 'Zutat', " +
+                    "zutaten.preis, zutaten.vegetarisch FROM `zutatenmix` " +
+                    "INNER JOIN zutaten ON zutaten.id = zutatenmix.zutaten_id " +
+                    "INNER JOIN menu ON menu.menu_nr = zutatenmix.menü_id " +
+                    "WHERE `menü_id` = " + menu;
+            String menuName = null;
+            ArrayList<Integer> ingredID = new ArrayList<>();
+            ArrayList<String> ingredName = new ArrayList<>();
+            ArrayList<Double> ingredPrice = new ArrayList<>();
+            ArrayList<Boolean> vegetarian = new ArrayList<>();
+            ResultSet rs = stmt.executeQuery(query);
+            while (rs.next()){
+                menuName = rs.getString("Menü");
+                ingredID.add(rs.getInt("zutaten_id"));
+                ingredName.add(rs.getString("Zutat"));
+                ingredPrice.add(rs.getDouble("preis"));
+                vegetarian.add(rs.getBoolean("vegetarisch"));
+            }
+            System.out.println(menu + ") " + menuName);
+            for (int i = 0; i < ingredID.size(); i++) {
+                System.out.print(ingredID.get(i) + " - " + ingredName.get(i) + " [" + df.format(ingredPrice.get(i)) + "€]");
+                if (vegetarian.get(i)){
+                    System.out.println(" => vegetarian");
+                } else {
+                    System.out.println(" => non vegetarian");
+                }
+            }
+        } catch (SQLException ex){
+            throw new Error("Something went wrong with updating a menu's ingredients.", ex);
+        }
+    }
+
+    private static int updateIngredInMenu (int menu, ArrayList<Integer> editIntreds){
+        Connection conn;
+        try {
+            String url = "jdbc:mysql://localhost:3306/lieferservice_gastro?user=root";
+            conn = DriverManager.getConnection(url);
+            Statement stmt = conn.createStatement();
+            String command;
+            for (Integer editIntred : editIntreds) {
+                if (editIntred < 0) {
+                    command = "DELETE FROM `zutatenmix` " +
+                            "WHERE `zutaten_id` = " + (-editIntred) + "AND menu_id = " + menu;
+                    stmt.executeUpdate(command);
+                } else if (editIntred > 0) {
+                    command = "INSERT INTO `zutatenmix`(`menü_id`, `zutaten_id`) " +
+                            "VALUES (" + menu + "," + editIntred + ")";
+                    stmt.executeUpdate(command);
+                } else {
+                    System.out.println("menu is now updated");
+                }
+            }
+        } catch (SQLException ex){
+            throw new Error("Something went wrong with updating a menu's ingredients.", ex);
+        }
+
+        return 0;
+    }
+
+    private static int updatePriceMenu (int id, double price) {
+        Connection conn = null;
+        try {
+            String url = "jdbc:mysql://localhost:3306/lieferservice_gastro?user=root";
+            conn = DriverManager.getConnection(url);
+            String command = "UPDATE `menu` SET `preis`= " + price + " WHERE `menu_nr` = " + id;
+            Statement stmt = conn.createStatement();
+            int ok = stmt.executeUpdate(command);
+            if(ok == 1){
+                System.out.println("price was successfully updated");
+            } else {
+                System.out.println("something went wrong");
+            }
+        } catch (SQLException ex) {
+            throw new Error("Problem", ex);
+        } finally {
+            try {
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException e) {
+                System.out.println(e.getMessage());
+            }
+        }
+        return 0;
+    }
+
+    private  static int deleteMenu (int menuNo) {
+        Connection conn = null;
+        try {
+            String url = "jdbc:mysql://localhost:3306/lieferservice_gastro?user=root";
+            conn = DriverManager.getConnection(url);
+            String command = //"DELETE FROM zutatenmix WHERE zutatenmix.menü_id = " + menuNo + "; " +
+                    "DELETE FROM `menu` WHERE `menu_nr` = " + menuNo;
+            Statement stmt = conn.createStatement();
+            int ok = stmt.executeUpdate(command);
+            if (ok == 1){
+                System.out.println("The menu was successfully deleted");
+            }
+
+        } catch (SQLException ex) {
+            throw new Error("Problem", ex);
+        } finally {
+            try {
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException e) {
+                System.out.println(e.getMessage());
+            }
+        }
+        return 0;
     }
 
 
