@@ -23,7 +23,6 @@ public class Main {
             if (decision == 1) {
                 decision = editingMenu();
             } else if (decision == 2) {
-                //todo: analyzeData();
                 decision = analyzeData();
             } else if (decision == 3) {
                 System.exit(0);
@@ -663,7 +662,7 @@ public class Main {
             decision = scannerForInt.nextInt();
             if (decision == 1) {
                 //how many orders were taken place till now?
-                //todo: decision = [Methode]
+                decision = ordersInTotal();
             } else if (decision == 2) {
                 //how many orders were taken place for each customer?
                 //todo: decision = [Methode]
@@ -687,6 +686,25 @@ public class Main {
             }
         }
 
+        return 0;
+    }
+
+    private static int ordersInTotal (){
+        Connection conn = null;
+        int amountOrdersInTotal = 0;
+        try{
+            String url = "jdbc:mysql://localhost:3306/lieferservice_gastro?user=root";
+            conn = DriverManager.getConnection(url);
+            Statement stmt = conn.createStatement();
+            String query = "SELECT COUNT(*) FROM `bestellung` ";
+            ResultSet rs = stmt.executeQuery(query);
+            while (rs.next()){
+                amountOrdersInTotal = rs.getInt("COUNT(*)");
+            }
+            System.out.println(amountOrdersInTotal + " orders were done till now.");
+        } catch (SQLException ex){
+            throw new Error("somthing went wrong with analyzing of Orders in total");
+        }
         return 0;
     }
 
