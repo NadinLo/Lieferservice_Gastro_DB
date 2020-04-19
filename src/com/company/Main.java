@@ -665,7 +665,7 @@ public class Main {
                 decision = ordersInTotal();
             } else if (decision == 2) {
                 //how many orders were taken place for each customer?
-                //todo: decision = [Methode]
+                decision = ordersPerCustomer();
             } else if (decision == 3) {
                 //how many orders were taken place for each location?
                 //todo: decision = [Methode]
@@ -702,8 +702,40 @@ public class Main {
                 amountOrdersInTotal = rs.getInt("COUNT(*)");
             }
             System.out.println(amountOrdersInTotal + " orders were done till now.");
+            System.out.println("--------------------------------");
+
         } catch (SQLException ex){
-            throw new Error("somthing went wrong with analyzing of Orders in total");
+            throw new Error("somthing went wrong with analyzing of Orders in total", ex);
+        }
+        return 0;
+    }
+
+    private static int ordersPerCustomer (){
+        Connection conn = null;
+        int amountOrdersPerCustomer = 0;
+        String nameCustomer;
+        String address;
+        String location;
+        //todo: implement category guest customer and registered customer
+        try{
+            String url = "jdbc:mysql://localhost:3306/lieferservice_gastro?user=root";
+            conn = DriverManager.getConnection(url);
+            Statement stmt = conn.createStatement();
+            String query = "SELECT COUNT(*), kunde.name ,kunde.straße_hnr, belieferte_ortschaften.name " +
+                    "FROM kunde " +
+                    "INNER JOIN belieferte_ortschaften on kunde.ortschaft = belieferte_ortschaften.id " +
+                    "GROUP BY belieferte_ortschaften.name, kunde.straße_hnr, kunde.name";
+            ResultSet rs = stmt.executeQuery(query);
+            while (rs.next()){
+                amountOrdersPerCustomer = rs.getInt("COUNT(*)");
+                nameCustomer = rs.getString("kunde.name");
+                location = rs.getString("belieferte_ortschaften.name");
+                address = rs.getString("kunde.straße_hnr");
+                System.out.println(nameCustomer + " from " + location + " (" + address + ") has ordered " + amountOrdersPerCustomer + " times");
+            }
+            System.out.println("---------------------------------------------------------------");
+        } catch (SQLException ex){
+            throw new Error("somthing went wrong with analyzing of Orders per customer", ex);
         }
         return 0;
     }
