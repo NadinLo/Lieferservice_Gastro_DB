@@ -780,7 +780,7 @@ public class Main {
                 decision = salesInTotal();
             } else if (decision == 2) {
                 //todo: per customer
-                //decision = salesPerCustomer();
+                decision = salesPerCustomer();
             } else if (decision == 3) {
                 //per location
                 decision = salesPerLocation ();
@@ -818,6 +818,43 @@ public class Main {
         } catch (SQLException ex) {
             throw new Error("somthing went wrong with analyzing of sales in total", ex);
         }
+
+        return 0;
+    }
+
+    private static int salesPerCustomer(){
+        Connection conn = null;
+        double salesPerCustomer = 0;
+        try {
+            String url = "jdbc:mysql://localhost:3306/lieferservice_gastro?user=root";
+            conn = DriverManager.getConnection(url);
+            Statement stmt = conn.createStatement();
+            String customer;
+            String x = null;
+            String query = "SELECT kunde.bestellnr, kunde.name ,kunde.straße_hnr, belieferte_ortschaften.name " +
+                    "FROM kunde " +
+                    "INNER JOIN belieferte_ortschaften on kunde.ortschaft = belieferte_ortschaften.id " +
+                    "GROUP BY belieferte_ortschaften.name, kunde.straße_hnr, kunde.name";
+            ResultSet rs = stmt.executeQuery(query);
+            while (rs.next()){
+                int orderNo = rs.getInt("kunde.bestellnr");
+                String nameCustomer = rs.getString("kunde.name");
+                String address = rs.getString("kunde.straße_hnr");
+                String location = rs.getString("belieferte_ortschaften.name");
+                customer = nameCustomer + address + location;
+                double priceOrder = salesSubQueries(orderNo);
+                if (customer.equalsIgnoreCase(x) || x == null){
+                    salesPerCustomer = salesPerCustomer + priceOrder;
+                    x = customer;
+                } else {
+                    System.out.println(nameCustomer + " from " + location + " (" + address + ") ordered for " + salesPerCustomer + " €");
+                    x = customer;
+                }
+            }
+        } catch (SQLException ex){
+            throw new Error("something went wrong with salesPerLocation", ex);
+        }
+        System.out.println("--------------------------------------");
 
         return 0;
     }
