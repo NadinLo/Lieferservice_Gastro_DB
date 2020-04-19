@@ -668,7 +668,7 @@ public class Main {
                 decision = ordersPerCustomer();
             } else if (decision == 3) {
                 //how many orders were taken place for each location?
-                //todo: decision = [Methode]
+                decision = ordersPerLocation ();
             } else if (decision == 4) {
                 //Sales in total/ per customer/ per location => to next menu
                 //todo: decision = [Methode]
@@ -731,11 +731,37 @@ public class Main {
                 nameCustomer = rs.getString("kunde.name");
                 location = rs.getString("belieferte_ortschaften.name");
                 address = rs.getString("kunde.straße_hnr");
-                System.out.println(nameCustomer + " from " + location + " (" + address + ") has ordered " + amountOrdersPerCustomer + " times");
+                System.out.println(nameCustomer + " from " + location + " (" + address + ") has ordered " + amountOrdersPerCustomer + " time(s)");
             }
             System.out.println("---------------------------------------------------------------");
         } catch (SQLException ex){
             throw new Error("somthing went wrong with analyzing of Orders per customer", ex);
+        }
+        return 0;
+    }
+
+    private static int ordersPerLocation (){
+        Connection conn = null;
+        int amountOrdersPerLocation = 0;;;
+        String location;
+        //todo: implement category guest customer and registered customer
+        try{
+            String url = "jdbc:mysql://localhost:3306/lieferservice_gastro?user=root";
+            conn = DriverManager.getConnection(url);
+            Statement stmt = conn.createStatement();
+            String query = "SELECT COUNT(*), belieferte_ortschaften.name " +
+                    "FROM kunde " +
+                    "INNER JOIN belieferte_ortschaften on kunde.ortschaft = belieferte_ortschaften.id " +
+                    "GROUP BY belieferte_ortschaften.name";
+            ResultSet rs = stmt.executeQuery(query);
+            while (rs.next()){
+                amountOrdersPerLocation = rs.getInt("COUNT(*)");
+                location = rs.getString("belieferte_ortschaften.name");
+                System.out.println(amountOrdersPerLocation + " order(s) in " + location);
+            }
+            System.out.println("--------------------------------------");
+        } catch (SQLException ex){
+            throw new Error("somthing went wrong with analyzing of Orders per location", ex);
         }
         return 0;
     }
