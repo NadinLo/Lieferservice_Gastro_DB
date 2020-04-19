@@ -671,7 +671,7 @@ public class Main {
                 decision = ordersPerLocation ();
             } else if (decision == 4) {
                 //Sales in total/ per customer/ per location => to next menu
-                //todo: decision = [Methode]
+                decision = sales();
             } else if (decision == 5) {
                 //What was soled the most and how often?
                 //todo: decision = [Methode]
@@ -740,7 +740,7 @@ public class Main {
         return 0;
     }
 
-    private static int ordersPerLocation (){
+    private static int ordersPerLocation () {
         Connection conn = null;
         int amountOrdersPerLocation = 0;;;
         String location;
@@ -763,6 +763,106 @@ public class Main {
         } catch (SQLException ex){
             throw new Error("somthing went wrong with analyzing of Orders per location", ex);
         }
+        return 0;
+    }
+
+    private static int sales(){
+        int decision = 0;
+        while (decision == 0) {
+            System.out.println("You have now following possibilities:");
+            System.out.println("1) sales in total");
+            System.out.println("2) sales per customer");
+            System.out.println("3) sales per location?");
+            System.out.println("4) finish analyzing program");
+
+            decision = scannerForInt.nextInt();
+            if (decision == 1) {
+                //in total
+                decision = salesInTotal();
+            } else if (decision == 2) {
+                //per customer
+                //decision = salesPerCustomer();
+            } else if (decision == 3) {
+                //per location
+                //decision = salesPerLocation ();
+            } else if (decision == 4) {
+                System.out.println("ok - just finished this editing program");
+            } else {
+                System.out.println("This input wasn't correct.");
+                decision = 0;
+            }
+        }
+
+        return 0;
+    }
+
+    private static int salesInTotal() {
+        Connection conn = null;
+        double salesInTotal = 0;
+        try {
+            String url = "jdbc:mysql://localhost:3306/lieferservice_gastro?user=root";
+            conn = DriverManager.getConnection(url);
+            try {
+                Statement stmt = conn.createStatement();
+                String query = "SELECT bestellung.bestellnr FROM `bestellung`";
+                ResultSet rs = stmt.executeQuery(query);
+                while (rs.next()) {
+                    double priceOrder = 0;
+                    int orderNo = rs.getInt("bestellung.bestellnr");
+                    try {
+                        Statement stmt2 = conn.createStatement();
+                        String query2 = "SELECT menu.preis," +
+                                "menu_auswahl.id_detail_auswahl, " +
+                                "menu_auswahl.anzahl " +
+                                "FROM `menu_auswahl` " +
+                                "INNER JOIN menu ON menu_auswahl.menu_nr = menu.menu_nr " +
+                                "WHERE menu_auswahl.bestell_nr = " + orderNo;
+                        ResultSet rs2 = stmt2.executeQuery(query2);
+                        while (rs2.next()) {
+                            double priceCompleteMenu = 0;
+                            double menuPrice = rs2.getDouble("menu.preis");
+                            int orderDetailID = rs2.getInt("menu_auswahl.id_detail_auswahl");
+                            int amount = rs2.getInt("menu_auswahl.anzahl");
+                            try {
+                                double sumExtraIngred = 0;
+                                double sumDeleteIngred = 0;
+                                Statement stmt3 = conn.createStatement();
+                                String query3 = "SELECT SUM(zutaten.preis) " +
+                                        "FROM `zutaten_hinzuf` " +
+                                        "INNER JOIN zutaten ON zutaten_hinzuf.zutaten_id = zutaten.id " +
+                                        "WHERE zutaten_hinzuf.id_detail_auswahl = " + orderDetailID;
+                                ResultSet rs3 = stmt3.executeQuery(query3);
+                                while (rs3.next()) {
+                                    sumExtraIngred = rs3.getDouble("SUM(zutaten.preis)");
+                                }
+                                query3 = "SELECT SUM(zutaten.preis) " +
+                                        "FROM `zutaten_entfernen` " +
+                                        "INNER JOIN zutaten ON zutaten_entfernen.zutaten_id = zutaten.id " +
+                                        "WHERE zutaten_entfernen.id_detail_auswahl = " + orderDetailID;
+                                rs3 = stmt3.executeQuery(query3);
+                                while (rs3.next()) {
+                                    sumDeleteIngred = rs3.getDouble("SUM(zutaten.preis)");
+                                }
+                                priceCompleteMenu = amount * (menuPrice + sumExtraIngred - sumDeleteIngred);
+                            } catch (SQLException ex) {
+                                throw new Error("something went wrong with query OrderDetails", ex);
+                            }
+                            priceOrder = priceOrder + priceCompleteMenu;
+                        }
+                    } catch (SQLException ex) {
+                        throw new Error("something went wrong with query menuNo and orderDetailID", ex);
+                    }
+                    salesInTotal = salesInTotal + priceOrder;
+                }
+            } catch (SQLException ex) {
+                throw new Error("something went wrong with query the order number");
+            }
+            System.out.println("sales in Total: " + df.format(salesInTotal) + "€");
+            System.out.println("--------------------------------------");
+        } catch (SQLException ex) {
+            throw new Error("somthing went wrong with analyzing of sales in total", ex);
+        }
+
         return 0;
     }
 
