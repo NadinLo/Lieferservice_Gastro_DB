@@ -744,7 +744,6 @@ public class Main {
         Connection conn = null;
         int amountOrdersPerLocation = 0;;;
         String location;
-        //todo: implement category guest customer and registered customer
         try{
             String url = "jdbc:mysql://localhost:3306/lieferservice_gastro?user=root";
             conn = DriverManager.getConnection(url);
@@ -780,11 +779,11 @@ public class Main {
                 //in total
                 decision = salesInTotal();
             } else if (decision == 2) {
-                //per customer
+                //todo: per customer
                 //decision = salesPerCustomer();
             } else if (decision == 3) {
                 //per location
-                //decision = salesPerLocation ();
+                decision = salesPerLocation ();
             } else if (decision == 4) {
                 System.out.println("ok - just finished this editing program");
             } else {
@@ -807,51 +806,8 @@ public class Main {
                 String query = "SELECT bestellung.bestellnr FROM `bestellung`";
                 ResultSet rs = stmt.executeQuery(query);
                 while (rs.next()) {
-                    double priceOrder = 0;
                     int orderNo = rs.getInt("bestellung.bestellnr");
-                    try {
-                        Statement stmt2 = conn.createStatement();
-                        String query2 = "SELECT menu.preis," +
-                                "menu_auswahl.id_detail_auswahl, " +
-                                "menu_auswahl.anzahl " +
-                                "FROM `menu_auswahl` " +
-                                "INNER JOIN menu ON menu_auswahl.menu_nr = menu.menu_nr " +
-                                "WHERE menu_auswahl.bestell_nr = " + orderNo;
-                        ResultSet rs2 = stmt2.executeQuery(query2);
-                        while (rs2.next()) {
-                            double priceCompleteMenu = 0;
-                            double menuPrice = rs2.getDouble("menu.preis");
-                            int orderDetailID = rs2.getInt("menu_auswahl.id_detail_auswahl");
-                            int amount = rs2.getInt("menu_auswahl.anzahl");
-                            try {
-                                double sumExtraIngred = 0;
-                                double sumDeleteIngred = 0;
-                                Statement stmt3 = conn.createStatement();
-                                String query3 = "SELECT SUM(zutaten.preis) " +
-                                        "FROM `zutaten_hinzuf` " +
-                                        "INNER JOIN zutaten ON zutaten_hinzuf.zutaten_id = zutaten.id " +
-                                        "WHERE zutaten_hinzuf.id_detail_auswahl = " + orderDetailID;
-                                ResultSet rs3 = stmt3.executeQuery(query3);
-                                while (rs3.next()) {
-                                    sumExtraIngred = rs3.getDouble("SUM(zutaten.preis)");
-                                }
-                                query3 = "SELECT SUM(zutaten.preis) " +
-                                        "FROM `zutaten_entfernen` " +
-                                        "INNER JOIN zutaten ON zutaten_entfernen.zutaten_id = zutaten.id " +
-                                        "WHERE zutaten_entfernen.id_detail_auswahl = " + orderDetailID;
-                                rs3 = stmt3.executeQuery(query3);
-                                while (rs3.next()) {
-                                    sumDeleteIngred = rs3.getDouble("SUM(zutaten.preis)");
-                                }
-                                priceCompleteMenu = amount * (menuPrice + sumExtraIngred - sumDeleteIngred);
-                            } catch (SQLException ex) {
-                                throw new Error("something went wrong with query OrderDetails", ex);
-                            }
-                            priceOrder = priceOrder + priceCompleteMenu;
-                        }
-                    } catch (SQLException ex) {
-                        throw new Error("something went wrong with query menuNo and orderDetailID", ex);
-                    }
+                    double priceOrder = salesSubQueries(orderNo);
                     salesInTotal = salesInTotal + priceOrder;
                 }
             } catch (SQLException ex) {
@@ -865,6 +821,95 @@ public class Main {
 
         return 0;
     }
+
+    private static int salesPerLocation(){
+        Connection conn = null;
+        ArrayList<Integer> locations = new ArrayList<>();
+        ArrayList<String> locationNames = new ArrayList<>();
+        try {
+            String url = "jdbc:mysql://localhost:3306/lieferservice_gastro?user=root";
+            conn = DriverManager.getConnection(url);
+            Statement stmt = conn.createStatement();
+            String query = "SELECT belieferte_ortschaften.id, belieferte_ortschaften.name " +
+                    "FROM `belieferte_ortschaften` ORDER BY belieferte_ortschaften.distance";
+            ResultSet rs = stmt.executeQuery(query);
+            while (rs.next()){
+                locations.add(rs.getInt("belieferte_ortschaften.id"));
+                locationNames.add(rs.getString("belieferte_ortschaften.name"));
+            }
+            for (int i = 0; i < locations.size(); i++) {
+                double salesPerLocation = 0;
+                query = "SELECT kunde.bestellnr FROM `kunde` WHERE kunde.ortschaft = " + locations.get(i);
+                rs = stmt.executeQuery(query);
+                while (rs.next()){
+                    int orderNo = rs.getInt("kunde.bestellnr");
+                    salesPerLocation = salesPerLocation + salesSubQueries(orderNo);
+                }
+                System.out.println(locationNames.get(i) + ": " + df.format(salesPerLocation) + " € in total");
+            }
+        } catch (SQLException ex){
+            throw new Error("something went wrong with salesPerLocation", ex);
+        }
+        System.out.println("--------------------------------------");
+
+        return 0;
+    }
+
+    private static double salesSubQueries (int orderNo) {
+        Connection conn = null;
+        double priceOrder = 0;
+        try {
+            String url = "jdbc:mysql://localhost:3306/lieferservice_gastro?user=root";
+            conn = DriverManager.getConnection(url);
+            try {
+                Statement stmt2 = conn.createStatement();
+                String query2 = "SELECT menu.preis," +
+                        "menu_auswahl.id_detail_auswahl, " +
+                        "menu_auswahl.anzahl " +
+                        "FROM `menu_auswahl` " +
+                        "INNER JOIN menu ON menu_auswahl.menu_nr = menu.menu_nr " +
+                        "WHERE menu_auswahl.bestell_nr = " + orderNo;
+                ResultSet rs2 = stmt2.executeQuery(query2);
+                while (rs2.next()) {
+                    double priceCompleteMenu = 0;
+                    double menuPrice = rs2.getDouble("menu.preis");
+                    int orderDetailID = rs2.getInt("menu_auswahl.id_detail_auswahl");
+                    int amount = rs2.getInt("menu_auswahl.anzahl");
+                    try {
+                        double sumExtraIngred = 0;
+                        double sumDeleteIngred = 0;
+                        Statement stmt3 = conn.createStatement();
+                        String query3 = "SELECT SUM(zutaten.preis) " +
+                                "FROM `zutaten_hinzuf` " +
+                                "INNER JOIN zutaten ON zutaten_hinzuf.zutaten_id = zutaten.id " +
+                                "WHERE zutaten_hinzuf.id_detail_auswahl = " + orderDetailID;
+                        ResultSet rs3 = stmt3.executeQuery(query3);
+                        while (rs3.next()) {
+                            sumExtraIngred = rs3.getDouble("SUM(zutaten.preis)");
+                        }
+                        query3 = "SELECT SUM(zutaten.preis) " +
+                                "FROM `zutaten_entfernen` " +
+                                "INNER JOIN zutaten ON zutaten_entfernen.zutaten_id = zutaten.id " +
+                                "WHERE zutaten_entfernen.id_detail_auswahl = " + orderDetailID;
+                        rs3 = stmt3.executeQuery(query3);
+                        while (rs3.next()) {
+                            sumDeleteIngred = rs3.getDouble("SUM(zutaten.preis)");
+                        }
+                        priceCompleteMenu = amount * (menuPrice + sumExtraIngred - sumDeleteIngred);
+                    } catch (SQLException ex) {
+                        throw new Error("something went wrong with query OrderDetails", ex);
+                    }
+                    priceOrder = priceOrder + priceCompleteMenu;
+                }
+            } catch (SQLException ex) {
+                throw new Error("something went wrong with query menuNo and orderDetailID", ex);
+            }
+        } catch (SQLException ex) {
+            throw new Error("something went wrong with query the order number");
+        }
+        return priceOrder;
+    }
+
 
 
 }
