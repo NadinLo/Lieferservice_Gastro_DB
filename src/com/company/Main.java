@@ -677,7 +677,7 @@ public class Main {
                 decision = soldTheMost();
             } else if (decision == 6) {
                 //Order of the sold menus - the most successful is named first
-                //todo: decision = [Methode]
+                decision = orderOfSoldMenus();
             } else if (decision == 7) {
                 System.out.println("ok - just finished this editing program");
             } else {
@@ -963,7 +963,7 @@ public class Main {
                     "FROM `menu_auswahl` " +
                     "INNER JOIN menu ON menu_auswahl.menu_nr = menu.menu_nr " +
                     "GROUP BY menu_auswahl.menu_nr " +
-                    "ORDER BY menu_auswahl.menu_nr DESC ";
+                    "ORDER BY COUNT(menu_auswahl.menu_nr) DESC ";
             ResultSet rs = stmt.executeQuery(query);
             ArrayList<String> menuNames = new ArrayList<>();
             ArrayList<Integer> amounts = new ArrayList<>();
@@ -985,6 +985,35 @@ public class Main {
 
     return 0;
     }
+
+    private static int orderOfSoldMenus(){
+        Connection conn = null;
+        try {
+            String url = "jdbc:mysql://localhost:3306/lieferservice_gastro?user=root";
+            conn = DriverManager.getConnection(url);
+            Statement stmt = conn.createStatement();
+            String query = "SELECT menu.name, COUNT(menu_auswahl.menu_nr) " +
+                    "FROM `menu_auswahl` " +
+                    "INNER JOIN menu ON menu_auswahl.menu_nr = menu.menu_nr " +
+                    "GROUP BY menu_auswahl.menu_nr " +
+                    "ORDER BY COUNT(menu_auswahl.menu_nr) DESC ";
+            ResultSet rs = stmt.executeQuery(query);
+            ArrayList<String> menuNames = new ArrayList<>();
+            ArrayList<Integer> amounts = new ArrayList<>();
+            while (rs.next()){
+                menuNames.add(rs.getString("menu.name"));
+                amounts.add(rs.getInt("COUNT(menu_auswahl.menu_nr)"));
+            }
+            for (int i = 0; i < amounts.size(); i++) {
+                System.out.println(menuNames.get(i) + " was sold the most (" + amounts.get(i) + " times)");
+            }
+            System.out.println("---------------------------------------");
+        } catch (SQLException ex){
+            throw new Error("something went wrong with the query what was sold the most", ex);
+        }
+        return 0;
+    }
+
 
 
 
