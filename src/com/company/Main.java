@@ -690,7 +690,7 @@ public class Main {
     }
 
     private static int ordersInTotal (){
-        Connection conn = null;
+        Connection conn;
         int amountOrdersInTotal = 0;
         try{
             String url = "jdbc:mysql://localhost:3306/lieferservice_gastro?user=root";
@@ -711,8 +711,8 @@ public class Main {
     }
 
     private static int ordersPerCustomer (){
-        Connection conn = null;
-        int amountOrdersPerCustomer = 0;
+        Connection conn;
+        int amountOrdersPerCustomer;
         String nameCustomer;
         String address;
         String location;
@@ -741,8 +741,8 @@ public class Main {
     }
 
     private static int ordersPerLocation () {
-        Connection conn = null;
-        int amountOrdersPerLocation = 0;;;
+        Connection conn;
+        int amountOrdersPerLocation;
         String location;
         try{
             String url = "jdbc:mysql://localhost:3306/lieferservice_gastro?user=root";
@@ -796,7 +796,7 @@ public class Main {
     }
 
     private static int salesInTotal() {
-        Connection conn = null;
+        Connection conn;
         double salesInTotal = 0;
         try {
             String url = "jdbc:mysql://localhost:3306/lieferservice_gastro?user=root";
@@ -823,7 +823,7 @@ public class Main {
     }
 
     private static int salesPerCustomer(){
-        Connection conn = null;
+        Connection conn;
         double salesPerCustomer = 0;
         ArrayList<String> results = new ArrayList<>();
         try {
@@ -844,13 +844,11 @@ public class Main {
                 String location = rs.getString("belieferte_ortschaften.name");
                 customer = nameCustomer + " from " + location + " (" + address + ")";
                 double priceOrder = salesSubQueries(orderNo);
-                if (customer.equalsIgnoreCase(x) || x == null){
-                    salesPerCustomer = salesPerCustomer + priceOrder;
-                } else {
+                if (!customer.equalsIgnoreCase(x) && x != null) {
                     results.add(x + " ordered for " + df.format(salesPerCustomer) + " €");
                     salesPerCustomer = 0;
-                    salesPerCustomer = salesPerCustomer + priceOrder;
                 }
+                salesPerCustomer = salesPerCustomer + priceOrder;
                 x = customer;
             }
             results.add(x + " ordered for " + df.format(salesPerCustomer) + " €");
@@ -866,7 +864,7 @@ public class Main {
     }
 
     private static int salesPerLocation(){
-        Connection conn = null;
+        Connection conn;
         ArrayList<Integer> locations = new ArrayList<>();
         ArrayList<String> locationNames = new ArrayList<>();
         try {
@@ -899,7 +897,7 @@ public class Main {
     }
 
     private static double salesSubQueries (int orderNo) {
-        Connection conn = null;
+        Connection conn;
         double priceOrder = 0;
         try {
             String url = "jdbc:mysql://localhost:3306/lieferservice_gastro?user=root";
@@ -914,7 +912,7 @@ public class Main {
                         "WHERE menu_auswahl.bestell_nr = " + orderNo;
                 ResultSet rs2 = stmt2.executeQuery(query2);
                 while (rs2.next()) {
-                    double priceCompleteMenu = 0;
+                    double priceCompleteMenu;
                     double menuPrice = rs2.getDouble("menu.preis");
                     int orderDetailID = rs2.getInt("menu_auswahl.id_detail_auswahl");
                     int amount = rs2.getInt("menu_auswahl.anzahl");
@@ -954,7 +952,7 @@ public class Main {
     }
 
     private static int soldTheMost(){
-        Connection conn = null;
+        Connection conn;
         try {
             String url = "jdbc:mysql://localhost:3306/lieferservice_gastro?user=root";
             conn = DriverManager.getConnection(url);
@@ -987,7 +985,7 @@ public class Main {
     }
 
     private static int orderOfSoldMenus(){
-        Connection conn = null;
+        Connection conn;
         try {
             String url = "jdbc:mysql://localhost:3306/lieferservice_gastro?user=root";
             conn = DriverManager.getConnection(url);
