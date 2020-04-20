@@ -825,6 +825,7 @@ public class Main {
     private static int salesPerCustomer(){
         Connection conn = null;
         double salesPerCustomer = 0;
+        ArrayList<String> results = new ArrayList<>();
         try {
             String url = "jdbc:mysql://localhost:3306/lieferservice_gastro?user=root";
             conn = DriverManager.getConnection(url);
@@ -841,20 +842,25 @@ public class Main {
                 String nameCustomer = rs.getString("kunde.name");
                 String address = rs.getString("kunde.straße_hnr");
                 String location = rs.getString("belieferte_ortschaften.name");
-                customer = nameCustomer + address + location;
+                customer = nameCustomer + " from " + location + " (" + address + ")";
                 double priceOrder = salesSubQueries(orderNo);
                 if (customer.equalsIgnoreCase(x) || x == null){
                     salesPerCustomer = salesPerCustomer + priceOrder;
-                    x = customer;
                 } else {
-                    System.out.println(nameCustomer + " from " + location + " (" + address + ") ordered for " + salesPerCustomer + " €");
-                    x = customer;
+                    results.add(x + " ordered for " + df.format(salesPerCustomer) + " €");
+                    salesPerCustomer = 0;
+                    salesPerCustomer = salesPerCustomer + priceOrder;
                 }
+                x = customer;
+            }
+            results.add(x + " ordered for " + df.format(salesPerCustomer) + " €");
+            for (String result : results) {
+                System.out.println(result);
             }
         } catch (SQLException ex){
             throw new Error("something went wrong with salesPerLocation", ex);
         }
-        System.out.println("--------------------------------------");
+        System.out.println("------------------------------------------------------");
 
         return 0;
     }
