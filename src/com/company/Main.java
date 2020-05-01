@@ -18,13 +18,14 @@ public class Main {
             System.out.println("Hello chef! What is your aim to do?\n" +
                     "Edeting the menu -- press 1\n " +
                     "Analyze Data -- press 2\n " +
-                    "Quit program -- press 3");
+                    "Check orders -- press 3\n" +
+                    "Quit program -- press 4");
             decision = scannerForInt.nextInt();
             if (decision == 1) {
                 decision = editingMenu();
             } else if (decision == 2) {
                 decision = analyzeData();
-            } else if (decision == 3) {
+            } else if (decision == 4) {
                 System.exit(0);
             } else {
                 System.out.println("This input wasn't correct.");
@@ -35,231 +36,16 @@ public class Main {
     }
 
     private static int editingMenu(){
-        int decision = 0;
-        while (decision == 0) {
-            System.out.println("You have now following possibilities:");
-            System.out.println("1) show complete list of ingredients");
-            System.out.println("2) show all menu types");
-            System.out.println("3) show complete list of menus");
-            System.out.println("4) edit ingredients");
-            System.out.println("5) edit menus");
-            System.out.println("6) finish editing program");
 
-            decision = scannerForInt.nextInt();
-            if (decision == 1) {
-                //show complete list of ingredients
-                decision = printIngredientList();
-            } else if (decision == 2){
-                //show all menu types
-                decision = printMenuTypes();
-            } else if (decision == 3) {
-                //show complete menu
-                decision = printCompleteMenu();
-            } else if (decision == 4) {
-                //edit ingredients
-                decision = editIngredients();
-            } else if (decision == 5) {
-                //edit menu
-                decision = editMenus();
-            } else if (decision == 6) {
-                System.out.println("ok - just finished this editing program");
-            } else {
-                System.out.println("This input wasn't correct.");
-                decision = 0;
-            }
-        }
         return 0;
 
         //todo: Liefergebiet verwalten
         //todo: Lieferzonen verwalten
     }
 
-    private static int editIngredients (){
-
-        int decision = 0;
-        while (decision == 0) {
-            System.out.println("You have now following possibilities:");
-            System.out.println("1) add ingredients to the list");
-            System.out.println("2) delete ingredients from list");
-            System.out.println("3) edit price");
-            System.out.println("4) finish editing program");
-
-            decision = scannerForInt.nextInt();
-            if (decision == 1){
-                //add ingredients
-                System.out.println("Enter the name of the new ingredient");
-                String name = scannerForString.nextLine();
-                System.out.println("Is this ingredient vegetarian? Enter 'true' or 'false'");
-                boolean vegetarian = scannerForInt.nextBoolean();
-                System.out.println("Enter the price of the ingredient");
-                double price = scannerForInt.nextDouble();
-                decision = addIngredient(name, vegetarian, price);
-            }
-            else if (decision == 2){
-                //delete ingredents
-                System.out.println("Enter the ingredient number of the ingredient you want to take off the list");
-                int ingredID = scannerForInt.nextInt();
-                decision = deleteIngredient (ingredID);
-
-            }
-            else if (decision == 3){
-                //edit price
-                int ingredID;
-                double price;
-                System.out.println("Enter the ingredient number of the ingredient you want to update the price.");
-                ingredID = scannerForInt.nextInt();
-                System.out.println("Enter now the new wanted price");
-                price = scannerForInt.nextDouble();
-                decision = updatePriceIngred(ingredID, price);
-            }
-            else if (decision == 4){
-                System.out.println("ok - just finished the editing program");
-            }
-            else {
-                System.out.println("This input wasn't correct. Try again.");
-                decision = 0;
-            }
-        }
-        return 0;
-    }
-
     private static int editMenus (){
         int decision = 0;
-        while (decision == 0) {
-            System.out.println("You have now following possibilities:");
-            System.out.println("1) add menu");
-            System.out.println("2) update ingredients in a specific menu");
-            System.out.println("3) update price");
-            System.out.println("4) delete menu");
-            System.out.println("5) finish editing program");
 
-            decision = scannerForInt.nextInt();
-            if (decision == 1){
-                //add menu
-                ArrayList<Integer> ingredients = null;
-                boolean creationOK = false;
-                String name = null;
-                int menuType = 0;
-                double price = 0;
-                // Menü-Eigenschaften wählen und Auswahl bestätigen
-                while (!creationOK) {
-                    ingredients = new ArrayList<>();
-                    System.out.println("Enter the name for the new menu:");
-                    name = scannerForString.nextLine();
-                    System.out.println("Enter the Type id of the menu's type:");
-                    menuType = scannerForInt.nextInt();
-                    System.out.println("Enter the price the menu should cost:");
-                    price = scannerForInt.nextDouble();
-                    int ingredientID;
-                    System.out.println("Add one ingredient. Therefor enter the right ingredient number and press enter.\n" +
-                            "You need at least 2 ingredients and maximum 10. If you want to finish press -1");
-                    for (int i = 0; i < 10; i++) {
-                        System.out.println("Currently your menu has " + i + " ingredients");
-                        ingredientID = scannerForInt.nextInt();
-                        if(ingredientID != -1) {
-                            ingredients.add(ingredientID);
-                        } else { break;}
-                    }
-                    System.out.print("Your creation:\n" +
-                            "menu name: " + name + "\n" +
-                            "menu type: " + menuType + "\n" +
-                            "price: " + df.format(price) + "\n" +
-                            "ingredients: ");
-                    for (Integer ingredient : ingredients) {
-                        System.out.print(getIngredient(ingredient) + ", ");
-                    }
-                    System.out.println();
-                    System.out.println("Are you ok with this? enter Yes (Y)/ No (N)");
-                    String yOrn = scannerForString.nextLine();
-                    if (yOrn.equalsIgnoreCase("Y")){
-                        creationOK = true;}
-                    else if (yOrn.equalsIgnoreCase("N")){
-                        System.out.println("no Problem. Enter everything again.");
-                    }
-                }
-                decision = addNewMenu(name, menuType, price, ingredients);
-            }
-
-            else if (decision == 2){
-                //update ingredients in menu
-                //which menu/ delete or add ingredient
-                System.out.println("Please enter the  number of the menu you want to edit.");
-                int menu = scannerForInt.nextInt();
-                printMenuIngreds(menu);
-                System.out.println("Now enter one after another the number of the ingredient you want to add. If you want " +
-                        "to delete single ingredients from the menu list just write \"-\" before the number." +
-                        "Finish your entry with \"0\"");
-                ArrayList <Integer> editIngreds = new ArrayList<>();
-                while (!editIngreds.contains(0)) {
-                    editIngreds.add(scannerForInt.nextInt());
-                }
-                decision = updateIngredInMenu(menu, editIngreds);
-            }
-
-            else if (decision == 3){
-                //update price
-                int menuID;
-                double price;
-                System.out.println("Enter the number of the menu you want to update the price.");
-                menuID = scannerForInt.nextInt();
-                System.out.println("Enter now the new wanted price");
-                price = scannerForInt.nextDouble();
-                decision = updatePriceMenu (menuID, price);
-            }
-
-            else if (decision == 4){
-                //delete menu
-                System.out.println("Which menu do you want to delete? Please enter the number.");
-                int menuNo = scannerForInt.nextInt();
-                decision = deleteMenu(menuNo);
-            }
-
-            else if (decision == 5){
-                System.out.println("Ok - just finished the editing program");
-            }
-
-            else {
-                System.out.println("This input wasn't correct. Try again.");
-                decision = 0;
-            }
-        }
-        return 0;
-    }
-
-    private static int printIngredientList () {
-        Connection conn = null;
-        try {
-            String url = "jdbc:mysql://localhost:3306/lieferservice_gastro?user=root";
-            conn = DriverManager.getConnection(url);
-            String query = "SELECT * FROM `zutaten`";
-            Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery(query);
-            System.out.print(
-                    "ALL INGREDIENTS-------------------------\n" +
-                            "id\t| name\t\t\t | is veggi | price\n" +
-                            "----------------------------------------\n");
-            while (rs.next()){
-                int id = rs.getInt("id");
-                String name = rs.getString("name");
-                name = name.concat("               ");
-                name = name.substring(0,15);
-                boolean vegetarian = rs.getBoolean("vegetarisch");
-                double price = rs.getDouble("preis");
-                System.out.println(id + "\t| " + name + "| " + vegetarian + "  \t| " + price);
-            }
-            System.out.println("----------------------------------------\n");
-
-        } catch (SQLException ex) {
-            throw new Error("Problem", ex);
-        } finally {
-            try {
-                if (conn != null) {
-                    conn.close();
-                }
-            } catch (SQLException e) {
-                System.out.println(e.getMessage());
-            }
-        }
         return 0;
     }
 
@@ -364,126 +150,6 @@ public class Main {
             }
         }
         return name;
-    }
-
-    private static int addIngredient (String name, boolean vegetarian, double price) {
-
-        Connection conn = null;
-        try {
-            String url = "jdbc:mysql://localhost:3306/lieferservice_gastro?user=root";
-            conn = DriverManager.getConnection(url);
-            String command = "INSERT INTO `zutaten`(`name`, `vegetarisch`, `preis`) VALUES " +
-                    "('" + name + "'," + vegetarian + "," + price +")";
-            Statement stmt = conn.createStatement();
-            int ok = stmt.executeUpdate(command);
-            if(ok == 1){
-                System.out.println("ingredient was successfully added");
-            } else {
-                System.out.println("something went wrong");
-            }
-
-        } catch (SQLException ex) {
-            throw new Error("Problem", ex);
-        } finally {
-            try {
-                if (conn != null) {
-                    conn.close();
-                }
-            } catch (SQLException e) {
-                System.out.println(e.getMessage());
-            }
-        }
-        return 0;
-    }
-
-    private static int deleteIngredient (int id){
-        Connection conn = null;
-        try {
-            String url = "jdbc:mysql://localhost:3306/lieferservice_gastro?user=root";
-            conn = DriverManager.getConnection(url);
-            String command = "DELETE FROM `zutaten` WHERE `id` = " + id;
-            Statement stmt = conn.createStatement();
-            int ok = stmt.executeUpdate(command);
-            if(ok == 1){
-                System.out.println("ingredient was successfully deleted");
-            } else {
-                System.out.println("something went wrong");
-            }
-
-        } catch (SQLException ex) {
-            throw new Error("Problem", ex);
-        } finally {
-            try {
-                if (conn != null) {
-                    conn.close();
-                }
-            } catch (SQLException e) {
-                System.out.println(e.getMessage());
-            }
-        }
-        return 0;
-    }
-
-    private static int updatePriceIngred(int id, double price){
-        Connection conn = null;
-        try {
-            String url = "jdbc:mysql://localhost:3306/lieferservice_gastro?user=root";
-            conn = DriverManager.getConnection(url);
-            String command = "UPDATE `zutaten` SET `preis`=" + price + " WHERE `id` = " + id;
-            Statement stmt = conn.createStatement();
-            int ok = stmt.executeUpdate(command);
-            if(ok == 1){
-                System.out.println("price was successfully updated");
-            } else {
-                System.out.println("something went wrong");
-            }
-
-        } catch (SQLException ex) {
-            throw new Error("Problem", ex);
-        } finally {
-            try {
-                if (conn != null) {
-                    conn.close();
-                }
-            } catch (SQLException e) {
-                System.out.println(e.getMessage());
-            }
-        }
-        return 0;
-    }
-
-    private static int printMenuTypes (){
-        Connection conn = null;
-        try {
-            String url = "jdbc:mysql://localhost:3306/lieferservice_gastro?user=root";
-            conn = DriverManager.getConnection(url);
-            String query = "SELECT * FROM `menu_gruppe`";
-            Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery(query);
-            System.out.print("" +
-                    "ALL MENU TYPES----------\n" +
-                    "id\t| name\n" +
-                    "------------------------\n");
-            while (rs.next()){
-                int id = rs.getInt("id");
-                String name = rs.getString("name");
-
-                System.out.println(id + "\t| " + name);
-            }
-            System.out.println("------------------------");
-
-        } catch (SQLException ex) {
-            throw new Error("Problem", ex);
-        } finally {
-            try {
-                if (conn != null) {
-                    conn.close();
-                }
-            } catch (SQLException e) {
-                System.out.println(e.getMessage());
-            }
-        }
-        return 0;
     }
 
     private static int addNewMenu (String name, int menuType, double price, ArrayList<Integer> ingredients){
