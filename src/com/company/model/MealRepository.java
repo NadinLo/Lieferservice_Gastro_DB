@@ -1,7 +1,5 @@
 package com.company.model;
 
-import com.mysql.cj.jdbc.ha.NdbLoadBalanceExceptionChecker;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -9,7 +7,6 @@ import java.util.ArrayList;
 public class MealRepository implements IRepository {
 
     private DBConnector dbConnector;
-    private IngredientRepository ingredientRepository = new IngredientRepository();
 
     public MealRepository (){
         this.dbConnector = DBConnector.getInstance();
@@ -174,13 +171,13 @@ public class MealRepository implements IRepository {
         }
     }
 
-    public void updateMealIngredient (int mealId, int ingredientID){
+    public void updateMealIngredient (int mealId, int ingredientID) {
         Meal meal = findOne(mealId);
         if (ingredientID < 0) {
             ingredientID = -ingredientID;
             for (int i = 0; i < meal.getIngredients().size(); i++) {
                 if (meal.getIngredients().get(i).getId() == ingredientID) {
-                    dbConnector.delete("DELETE FROM `zutatenmix` WHERE `menü_id` = " + mealId + "AND `zutaten_id` = " + ingredientID);
+                    dbConnector.delete("DELETE FROM `zutatenmix` WHERE `menü_id` = " + mealId + " AND `zutaten_id` = " + ingredientID);
                     ingredientID = 0;
                 }
             } if (ingredientID != 0){
@@ -197,5 +194,14 @@ public class MealRepository implements IRepository {
             }
             dbConnector.insert("INSERT INTO `zutatenmix`(`menü_id`, `zutaten_id`) VALUES (" + mealId + ", " + ingredientID +")");
         }
+    }
+
+    public void updatePrice (int mealId, double price) {
+        dbConnector.update("UPDATE `menu` SET `preis`= " + price + " WHERE `menu_nr` = " + mealId);
+    }
+
+    public void deleteMeal (Meal meal) {
+        dbConnector.delete("DELETE FROM `zutatenmix` WHERE `menü_id` = " + meal.getId());
+        dbConnector.delete("DELETE FROM `menu` WHERE `menu_nr` = " + meal.getId());
     }
 }

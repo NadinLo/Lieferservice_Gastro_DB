@@ -7,7 +7,7 @@ public class Meal {
     private String name;
     private String menuType;
     private double menuPrice;
-    private ArrayList<Ingredient> ingredients;
+    private ArrayList<Ingredient> ingredients = new ArrayList<>();
 
     private ArrayList<Ingredient> addIngredients = new ArrayList<>();
     private ArrayList<Ingredient> takeOffIngredients = new ArrayList<>();

@@ -1,5 +1,7 @@
 package com.company;
 
+import com.company.controller.EditingController;
+
 import java.sql.*;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -7,310 +9,32 @@ import java.util.Scanner;
 
 public class Main {
     private static Scanner scannerForInt = new Scanner(System.in);
-
     private static Scanner scannerForString = new Scanner(System.in);
-
     private static DecimalFormat df = new DecimalFormat("##.##");
 
     public static void main(String[] args) {
+
+        EditingController editingController = new EditingController();
+
         int decision = 0;
-        while (decision == 0) {
+        while (decision != 4) {
             System.out.println("Hello chef! What is your aim to do?\n" +
-                    "Edeting the menu -- press 1\n " +
+                    "Editing the menu -- press 1\n " +
                     "Analyze Data -- press 2\n " +
                     "Check orders -- press 3\n" +
                     "Quit program -- press 4");
             decision = scannerForInt.nextInt();
             if (decision == 1) {
-                decision = editingMenu();
+                editingController.start();
             } else if (decision == 2) {
                 decision = analyzeData();
             } else if (decision == 4) {
-                System.exit(0);
+                System.out.println("Thank you and good bye");
             } else {
                 System.out.println("This input wasn't correct.");
-                decision = 0;
             }
         }
 
-    }
-
-    private static int editingMenu(){
-
-        return 0;
-
-        //todo: Liefergebiet verwalten
-        //todo: Lieferzonen verwalten
-    }
-
-    private static int editMenus (){
-        int decision = 0;
-
-        return 0;
-    }
-
-    private static int printCompleteMenu (){
-        ArrayList<String> menyTypes = new ArrayList<>();
-        Connection conn = null;
-        try {
-            String url = "jdbc:mysql://localhost:3306/lieferservice_gastro?user=root";
-            conn = DriverManager.getConnection(url);
-            Statement stmt = conn.createStatement();
-            //getMenuType
-            try {
-                String query = "SELECT * FROM `menu_gruppe`";
-                ResultSet rs = stmt.executeQuery(query);
-                while (rs.next()) {
-                    menyTypes.add(rs.getString("name"));
-                }
-            } catch (SQLException ex){
-                throw new Error("something went wrong with getMenuType", ex);
-            }
-            //getMenus
-            System.out.println("___________________________________________");
-            try {
-                for (String menyType : menyTypes) {
-                    System.out.println("=> " + menyType + ": ");
-                    String query = "SELECT * " +
-                            "FROM menu " +
-                            "INNER JOIN menu_gruppe ON menu.menu_gruppe = menu_gruppe.id " +
-                            "WHERE menu_gruppe.name = '" + menyType + "'";
-                    ResultSet rs = stmt.executeQuery(query);
-                    while (rs.next()) {
-                        int menuNo = rs.getInt("menu_nr");
-                        String menuName = rs.getString("name");
-                        double menuPrice = rs.getDouble("preis");
-
-                        System.out.println("\t" + menuNo + ")\t" + menuName + "\t[" + df.format(menuPrice) + "€]");
-                        System.out.print("\t\twith: ");
-                        //getIngredientsOfMenu
-                        ArrayList<Boolean> isIngredVeggi = new ArrayList<>();
-                        try {
-                            Statement subStmt = conn.createStatement();
-                            String subQuery = "SELECT zutaten.name, zutaten.vegetarisch " +
-                                    "FROM zutatenmix " +
-                                    "INNER JOIN zutaten ON zutatenmix.zutaten_id = zutaten.id " +
-                                    "WHERE zutatenmix.menü_id = " + menuNo;
-                            ResultSet subRs = subStmt.executeQuery(subQuery);
-                            while (subRs.next()) {
-                                String ingredName = subRs.getString("name");
-                                isIngredVeggi.add(subRs.getBoolean("vegetarisch"));
-                                System.out.print(ingredName + ", ");
-                            }
-                            if (!isIngredVeggi.contains(false)) {
-                                System.out.println("\n\t\t(vegetarian)");
-                            } else {
-                                System.out.println();
-                            }
-                        } catch (SQLException ex) {
-                            throw new Error("something went wrong with getIngredientsOfMenu", ex);
-                        }
-                    }
-                }
-                System.out.println("___________________________________________");
-            } catch (SQLException ex){
-                throw new Error("something went wrong with getMenus", ex);
-            }
-        } catch (SQLException ex) {
-            throw new Error("Problem", ex);
-        } finally {
-            try {
-                if (conn != null) {
-                    conn.close();
-                }
-            } catch (SQLException e) {
-                System.out.println(e.getMessage());
-            }
-        }
-        return 0;
-    }
-
-    private static String getIngredient(int id) {
-        Connection conn = null;
-        String name = null;
-        try {
-            String url = "jdbc:mysql://localhost:3306/lieferservice_gastro?user=root";
-            conn = DriverManager.getConnection(url);
-            String query = "SELECT name FROM `zutaten` WHERE id = " + id;
-            Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery(query);
-            while (rs.next()) {
-                name = rs.getString("name");
-            }
-
-        } catch (SQLException ex) {
-            throw new Error("Problem", ex);
-        } finally {
-            try {
-                if (conn != null) {
-                    conn.close();
-                }
-            } catch (SQLException e) {
-                System.out.println(e.getMessage());
-            }
-        }
-        return name;
-    }
-
-    private static int addNewMenu (String name, int menuType, double price, ArrayList<Integer> ingredients){
-        Connection conn = null;
-        try {
-            String url = "jdbc:mysql://localhost:3306/lieferservice_gastro?user=root";
-            conn = DriverManager.getConnection(url);
-            String command = "INSERT INTO `menu`" +
-                    "(`name`, `menu_gruppe`, preis)" +
-                    "VALUES ('" + name + "', " + menuType + ", " + price + ")";
-            Statement stmt = conn.createStatement();
-            int ok = stmt.executeUpdate(command);
-            int number = 0;
-            String query = "SELECT `menu_nr` FROM `menu` WHERE `name` = '" + name + "'";
-            ResultSet rs = stmt.executeQuery(query);
-            while (rs.next()) {
-                number = rs.getInt("menu_nr");
-            }
-            int ok2 = 0;
-            for (Integer ingredient : ingredients) {
-                command = "INSERT INTO `zutatenmix`(`menü_id`, `zutaten_id`) " +
-                        "VALUES (" + number + "," + ingredient + ")";
-                ok2 = stmt.executeUpdate(command);
-            }
-            if(ok == 1 && ok2 == 1){
-                System.out.println("menu was successfully added");
-            } else {
-                System.out.println("something went wrong");
-            }
-
-        } catch (SQLException ex) {
-            throw new Error("Problem", ex);
-        } finally {
-            try {
-                if (conn != null) {
-                    conn.close();
-                }
-            } catch (SQLException e) {
-                System.out.println(e.getMessage());
-            }
-        }
-        return 0;
-    }
-
-    private static void printMenuIngreds (int menu){
-        Connection conn;
-        try {
-            String url = "jdbc:mysql://localhost:3306/lieferservice_gastro?user=root";
-            conn = DriverManager.getConnection(url);
-            Statement stmt = conn.createStatement();
-            String query = "SELECT zutatenmix.menü_id, menu.name AS 'Menü', zutatenmix.zutaten_id, zutaten.name AS 'Zutat', " +
-                    "zutaten.preis, zutaten.vegetarisch FROM `zutatenmix` " +
-                    "INNER JOIN zutaten ON zutaten.id = zutatenmix.zutaten_id " +
-                    "INNER JOIN menu ON menu.menu_nr = zutatenmix.menü_id " +
-                    "WHERE `menü_id` = " + menu;
-            String menuName = null;
-            ArrayList<Integer> ingredID = new ArrayList<>();
-            ArrayList<String> ingredName = new ArrayList<>();
-            ArrayList<Double> ingredPrice = new ArrayList<>();
-            ArrayList<Boolean> vegetarian = new ArrayList<>();
-            ResultSet rs = stmt.executeQuery(query);
-            while (rs.next()){
-                menuName = rs.getString("Menü");
-                ingredID.add(rs.getInt("zutaten_id"));
-                ingredName.add(rs.getString("Zutat"));
-                ingredPrice.add(rs.getDouble("preis"));
-                vegetarian.add(rs.getBoolean("vegetarisch"));
-            }
-            System.out.println(menu + ") " + menuName);
-            for (int i = 0; i < ingredID.size(); i++) {
-                System.out.print(ingredID.get(i) + " - " + ingredName.get(i) + " [" + df.format(ingredPrice.get(i)) + "€]");
-                if (vegetarian.get(i)){
-                    System.out.println(" => vegetarian");
-                } else {
-                    System.out.println(" => non vegetarian");
-                }
-            }
-        } catch (SQLException ex){
-            throw new Error("Something went wrong with updating a menu's ingredients.", ex);
-        }
-    }
-
-    private static int updateIngredInMenu (int menu, ArrayList<Integer> editIntreds){
-        Connection conn;
-        try {
-            String url = "jdbc:mysql://localhost:3306/lieferservice_gastro?user=root";
-            conn = DriverManager.getConnection(url);
-            Statement stmt = conn.createStatement();
-            String command;
-            for (Integer editIntred : editIntreds) {
-                if (editIntred < 0) {
-                    command = "DELETE FROM `zutatenmix` " +
-                            "WHERE `zutaten_id` = " + (-editIntred) + "AND menu_id = " + menu;
-                    stmt.executeUpdate(command);
-                } else if (editIntred > 0) {
-                    command = "INSERT INTO `zutatenmix`(`menü_id`, `zutaten_id`) " +
-                            "VALUES (" + menu + "," + editIntred + ")";
-                    stmt.executeUpdate(command);
-                } else {
-                    System.out.println("menu is now updated");
-                }
-            }
-        } catch (SQLException ex){
-            throw new Error("Something went wrong with updating a menu's ingredients.", ex);
-        }
-
-        return 0;
-    }
-
-    private static int updatePriceMenu (int id, double price) {
-        Connection conn = null;
-        try {
-            String url = "jdbc:mysql://localhost:3306/lieferservice_gastro?user=root";
-            conn = DriverManager.getConnection(url);
-            String command = "UPDATE `menu` SET `preis`= " + price + " WHERE `menu_nr` = " + id;
-            Statement stmt = conn.createStatement();
-            int ok = stmt.executeUpdate(command);
-            if(ok == 1){
-                System.out.println("price was successfully updated");
-            } else {
-                System.out.println("something went wrong");
-            }
-        } catch (SQLException ex) {
-            throw new Error("Problem", ex);
-        } finally {
-            try {
-                if (conn != null) {
-                    conn.close();
-                }
-            } catch (SQLException e) {
-                System.out.println(e.getMessage());
-            }
-        }
-        return 0;
-    }
-
-    private  static int deleteMenu (int menuNo) {
-        Connection conn = null;
-        try {
-            String url = "jdbc:mysql://localhost:3306/lieferservice_gastro?user=root";
-            conn = DriverManager.getConnection(url);
-            String command = //"DELETE FROM zutatenmix WHERE zutatenmix.menü_id = " + menuNo + "; " +
-                    "DELETE FROM `menu` WHERE `menu_nr` = " + menuNo;
-            Statement stmt = conn.createStatement();
-            int ok = stmt.executeUpdate(command);
-            if (ok == 1){
-                System.out.println("The menu was successfully deleted");
-            }
-
-        } catch (SQLException ex) {
-            throw new Error("Problem", ex);
-        } finally {
-            try {
-                if (conn != null) {
-                    conn.close();
-                }
-            } catch (SQLException e) {
-                System.out.println(e.getMessage());
-            }
-        }
-        return 0;
     }
 
     private static int analyzeData () {

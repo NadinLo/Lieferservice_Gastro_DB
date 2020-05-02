@@ -26,7 +26,7 @@ public class MealView {
                         "| " + (df.format(menu.get(i).getMenuPrice()) + " €"));
             } else {
                 System.out.println(" " + (menu.get(i).getMenuType() + "          ").substring(0,14) +
-                        "| " + (menu.get(i).getId() + "      ").substring(0,8) +
+                        "| " + (menu.get(i).getId() + "                          ").substring(0,8) +
                         "| " + (menu.get(i).getName() + "                      ").substring(0,20) +
                         "| " + (menu.get(i).isVegetarian() + "          ").substring(0,5) +
                         "| " + (df.format(menu.get(i).getMenuPrice()) + " €"));
@@ -44,7 +44,7 @@ public class MealView {
 
     public void printMealTypes (ArrayList<String> types){
         for (int i = 0; i < types.size(); i++) {
-            System.out.println((" " + i + 1 + "   ").substring(0,4) + "| " + types.get(i));
+            System.out.println((" " + (i + 1) + "   ").substring(0,4) + "| " + types.get(i));
         }
     }
 
@@ -67,17 +67,18 @@ public class MealView {
     public boolean confirmNewMeal (ArrayList<Meal> meals) {
         printMenu(meals);
         System.out.println("Are you ok with your choice? Enter 'y' for yes or 'n' for no.");
-        if (scannerForString.nextLine().equalsIgnoreCase("y")) {
-            return true;
-        } else {
-            return false;
-        }
+        return scannerForString.nextLine().equalsIgnoreCase("y");
     }
 
     public int chooseMealToChange (ArrayList<Meal> menu) {
         printMenu(menu);
         System.out.println("Enter the number of meal which you want to change");
         return scannerForInt.nextInt();
+    }
+
+    public double editPrice () {
+        System.out.println("Enter the new price");
+        return scannerForInt.nextDouble();
     }
 
 

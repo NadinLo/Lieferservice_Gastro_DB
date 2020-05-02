@@ -31,10 +31,10 @@ public class EditingController {
                 mealView.printMenu(mealRepository.findAll());
             } if (decision == 4) {
                 //edit ingredients
-                startEditIngredient(editingView.editingIngredients());
+                startEditIngredient(0);
             } if (decision == 5) {
                 //edit menu
-                startEditingMeals(editingView.editingMeals());
+                startEditingMeals(0);
             } if (decision == 6) {
                 System.out.println("ok - just finished this editing program");
             } else {
@@ -45,24 +45,33 @@ public class EditingController {
 
     private void startEditIngredient (int a) {
         while (a != 4) {
-
+            a = editingView.editingIngredients();
             if (a == 1) {
                 //add ingredients
                 ingredientRepository.create(ingredientView.addIngredient());
-            } if (a == 2) {
+            }
+            if (a == 2) {
                 //delete ingredents
+                ingredientView.printAllIngredients(ingredientRepository.findAll());
                 ingredientRepository.delete(ingredientView.deleteIngredient());
-            } if (a == 3) {
+            }
+            if (a == 3) {
                 //edit price
+                ingredientView.printAllIngredients(ingredientRepository.findAll());
                 ingredientRepository.updatePrice(ingredientView.IngredientId(), ingredientView.changeSinglePrice());
-            } else if (a == 4) {
-                System.out.println("ok - just finished the editing program");
+            }
+            if (a == 4) {
+                System.out.println("Finish the editing ingredient program ");
+            }
+            else {
+                System.out.println("Unknown entry. Try again");
             }
         }
     }
 
     private void startEditingMeals (int a) {
         while (a != 5) {
+            a = editingView.editingMeals();
             if (a == 1){
                 //add menu
                 Meal meal;
@@ -72,9 +81,10 @@ public class EditingController {
                             mealView.giveMealType(mealRepository.getAllMealTypes()),
                             mealView.giveMealPrice());
                     ArrayList<Integer> ingredients = ingredientView.mealIngredients(ingredientRepository.findAll());
-                    for (Integer ingredientId : ingredients) {
-                        meal.getIngredients().add(ingredientRepository.findOne(ingredientId));
+                    for (int i = 0; i < ingredients.size(); i++) {
+                        meal.getIngredients().add(ingredientRepository.findOne(ingredients.get(i)));
                     }
+                    //to be able to use the print method I need an Array
                     ArrayList<Meal> meals = new ArrayList<>();
                     meals.add(meal);
                     if (mealView.confirmNewMeal(meals)) {
@@ -87,32 +97,26 @@ public class EditingController {
                 //update ingredients in menu
                 //which menu/ delete or add ingredient
                 int mealId = mealView.chooseMealToChange(mealRepository.findAll());
+                ingredientView.printAllIngredients(ingredientRepository.findAll());
                 int ingredientId = 1;
                 while (ingredientId != 0) {
                     ingredientId = ingredientView.editMealIngredient();
                     mealRepository.updateMealIngredient(mealId, ingredientId);
                 }
             }
-
             if (a == 3){
                 //update price
-                int menuID;
-                double price;
-                System.out.println("Enter the number of the menu you want to update the price.");
-                menuID = scannerForInt.nextInt();
-                System.out.println("Enter now the new wanted price");
-                price = scannerForInt.nextDouble();
-                decision = updatePriceMenu (menuID, price);
+                mealRepository.updatePrice(mealView.chooseMealToChange(mealRepository.findAll()), mealView.editPrice());
             }
-
             if (a == 4){
                 //delete menu
-                System.out.println("Which menu do you want to delete? Please enter the number.");
-                int menuNo = scannerForInt.nextInt();
-                decision = deleteMenu(menuNo);
+                mealRepository.deleteMeal(mealRepository.findOne(mealView.chooseMealToChange(mealRepository.findAll()) ));
             }
-            if (a == 5){
-                System.out.println("Ok - just finished the editing program");
+            if (a == 5) {
+                System.out.println("Finish the meal editing program");
+            }
+            else {
+                System.out.println("Unknown entry. Try again.");
             }
         }
     }
