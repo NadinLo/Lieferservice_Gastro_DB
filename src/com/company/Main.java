@@ -1,5 +1,6 @@
 package com.company;
 
+import com.company.controller.AnalyzeController;
 import com.company.controller.EditingController;
 
 import java.sql.*;
@@ -15,6 +16,7 @@ public class Main {
     public static void main(String[] args) {
 
         EditingController editingController = new EditingController();
+        AnalyzeController analyzeController = new AnalyzeController();
 
         int decision = 0;
         while (decision != 4) {
@@ -27,7 +29,9 @@ public class Main {
             if (decision == 1) {
                 editingController.start();
             } else if (decision == 2) {
-                decision = analyzeData();
+                analyzeController.start();
+            } else if (decision == 3) {
+                //todo: check orders
             } else if (decision == 4) {
                 System.out.println("Thank you and good bye");
             } else {
@@ -35,154 +39,6 @@ public class Main {
             }
         }
 
-    }
-
-    private static int analyzeData () {
-        int decision = 0;
-        while (decision == 0) {
-            System.out.println("You have now following possibilities:");
-            System.out.println("1) how many orders were taken place till now?");
-            System.out.println("2) how many orders were taken place for each customer?");
-            System.out.println("3) how many orders were taken place for each location?");
-            System.out.println("4) Sales in total/ per customer/ per location");
-            System.out.println("5) What was soled the most and how often?");
-            System.out.println("6) Order of the sold menus - the most successful is named first");
-            System.out.println("7) finish analyzing program");
-
-            decision = scannerForInt.nextInt();
-            if (decision == 1) {
-                //how many orders were taken place till now?
-                decision = ordersInTotal();
-            } else if (decision == 2) {
-                //how many orders were taken place for each customer?
-                decision = ordersPerCustomer();
-            } else if (decision == 3) {
-                //how many orders were taken place for each location?
-                decision = ordersPerLocation ();
-            } else if (decision == 4) {
-                //Sales in total/ per customer/ per location => to next menu
-                decision = sales();
-            } else if (decision == 5) {
-                //What was soled the most and how often?
-                decision = soldTheMost();
-            } else if (decision == 6) {
-                //Order of the sold menus - the most successful is named first
-                decision = orderOfSoldMenus();
-            } else if (decision == 7) {
-                System.out.println("ok - just finished this editing program");
-            } else {
-                System.out.println("This input wasn't correct.");
-                decision = 0;
-            }
-        }
-
-        return 0;
-    }
-
-    private static int ordersInTotal (){
-        Connection conn;
-        int amountOrdersInTotal = 0;
-        try{
-            String url = "jdbc:mysql://localhost:3306/lieferservice_gastro?user=root";
-            conn = DriverManager.getConnection(url);
-            Statement stmt = conn.createStatement();
-            String query = "SELECT COUNT(*) FROM `bestellung` ";
-            ResultSet rs = stmt.executeQuery(query);
-            while (rs.next()){
-                amountOrdersInTotal = rs.getInt("COUNT(*)");
-            }
-            System.out.println(amountOrdersInTotal + " orders were done till now.");
-            System.out.println("--------------------------------");
-
-        } catch (SQLException ex){
-            throw new Error("somthing went wrong with analyzing of Orders in total", ex);
-        }
-        return 0;
-    }
-
-    private static int ordersPerCustomer (){
-        Connection conn;
-        int amountOrdersPerCustomer;
-        String nameCustomer;
-        String address;
-        String location;
-        //todo: implement category guest customer and registered customer
-        try{
-            String url = "jdbc:mysql://localhost:3306/lieferservice_gastro?user=root";
-            conn = DriverManager.getConnection(url);
-            Statement stmt = conn.createStatement();
-            String query = "SELECT COUNT(*), kunde.name ,kunde.straße_hnr, belieferte_ortschaften.name " +
-                    "FROM kunde " +
-                    "INNER JOIN belieferte_ortschaften on kunde.ortschaft = belieferte_ortschaften.id " +
-                    "GROUP BY belieferte_ortschaften.name, kunde.straße_hnr, kunde.name";
-            ResultSet rs = stmt.executeQuery(query);
-            while (rs.next()){
-                amountOrdersPerCustomer = rs.getInt("COUNT(*)");
-                nameCustomer = rs.getString("kunde.name");
-                location = rs.getString("belieferte_ortschaften.name");
-                address = rs.getString("kunde.straße_hnr");
-                System.out.println(nameCustomer + " from " + location + " (" + address + ") has ordered " + amountOrdersPerCustomer + " time(s)");
-            }
-            System.out.println("---------------------------------------------------------------");
-        } catch (SQLException ex){
-            throw new Error("somthing went wrong with analyzing of Orders per customer", ex);
-        }
-        return 0;
-    }
-
-    private static int ordersPerLocation () {
-        Connection conn;
-        int amountOrdersPerLocation;
-        String location;
-        try{
-            String url = "jdbc:mysql://localhost:3306/lieferservice_gastro?user=root";
-            conn = DriverManager.getConnection(url);
-            Statement stmt = conn.createStatement();
-            String query = "SELECT COUNT(*), belieferte_ortschaften.name " +
-                    "FROM kunde " +
-                    "INNER JOIN belieferte_ortschaften on kunde.ortschaft = belieferte_ortschaften.id " +
-                    "GROUP BY belieferte_ortschaften.name";
-            ResultSet rs = stmt.executeQuery(query);
-            while (rs.next()){
-                amountOrdersPerLocation = rs.getInt("COUNT(*)");
-                location = rs.getString("belieferte_ortschaften.name");
-                System.out.println(amountOrdersPerLocation + " order(s) in " + location);
-            }
-            System.out.println("--------------------------------------");
-        } catch (SQLException ex){
-            throw new Error("somthing went wrong with analyzing of Orders per location", ex);
-        }
-        return 0;
-    }
-
-    private static int sales(){
-        int decision = 0;
-        while (decision == 0) {
-            System.out.println("You have now following possibilities:");
-            System.out.println("1) sales in total");
-            System.out.println("2) sales per customer");
-            System.out.println("3) sales per location?");
-            System.out.println("4) finish analyzing program");
-
-            decision = scannerForInt.nextInt();
-            if (decision == 1) {
-                //in total
-                decision = salesInTotal();
-            } else if (decision == 2) {
-                //per customer
-                decision = salesPerCustomer();
-            } else if (decision == 3) {
-                //per location
-                decision = salesPerLocation ();
-            } else if (decision == 4) {
-                System.out.println("ok - just finished this editing program");
-            } else {
-                System.out.println("This input wasn't correct.");
-                decision = 0;
-            }
-        }
-
-        return 0;
     }
 
     private static int salesInTotal() {
