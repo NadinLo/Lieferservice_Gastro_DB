@@ -1,18 +1,15 @@
 package com.company.controller;
 
-import com.company.model.Order;
-import com.company.model.OrderRepository;
-import com.company.model.User;
-import com.company.model.UserRepository;
+import com.company.model.*;
 import com.company.view.AnalyzeView;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class AnalyzeController {
     AnalyzeView analyzeView = new AnalyzeView();
     OrderRepository orderRepository = new OrderRepository();
     UserRepository userRepository = new UserRepository();
+    MealRepository mealRepository = new MealRepository();
 
 
     public void start () {
@@ -68,9 +65,26 @@ public class AnalyzeController {
             } else if (decision == 5) {
                 //todo:
                 //What was soled the most and how often?
+                ArrayList<ArrayList<Integer>> soldTheMost = orderRepository.soldTheMost();
+                ArrayList<Integer> mealNo = soldTheMost.get(0);
+                ArrayList<Integer> amount = soldTheMost.get(1);
+                ArrayList<Meal> meals = new ArrayList<>();
+                for (Integer integer : mealNo) {
+                    meals.add(mealRepository.findOne(integer));
+                }
+                analyzeView.soldTheMost(meals, amount);
             } else if (decision == 6) {
                 //todo:
                 //Order of the sold menus - the most successful is named first
+                ArrayList<ArrayList<Integer>> soldTheMost = orderRepository.soldTheMost();
+                ArrayList<Integer> mealNo = soldTheMost.get(0);
+                ArrayList<Integer> amount = soldTheMost.get(1);
+                ArrayList<Meal> meals = new ArrayList<>();
+                for (Integer integer : mealNo) {
+                    meals.add(mealRepository.findOne(integer));
+                }
+                analyzeView.listOfSoldTheMost(meals, amount);
+
             } else if (decision == 7) {
                 System.out.println("ok - just finished this editing program");
             } else {
@@ -86,7 +100,9 @@ public class AnalyzeController {
             if (a == 1) {
                 //in total
                 analyzeView.salesInTotal(orderRepository.findAll());
-            } else if (a == 2) {
+            }
+
+            else if (a == 2) {
                 //per customer
                 ArrayList<User> users = userRepository.findAll();
                 ArrayList<Order> orders = new ArrayList<>();
@@ -107,8 +123,10 @@ public class AnalyzeController {
                     }
                 }
 
-            } else if (a == 3) {
-                //todo: per location
+            }
+
+            else if (a == 3) {
+                //per location
                 ArrayList<User> users = userRepository.findAll();
                 ArrayList<Order> orders = new ArrayList<>();
                 for (int i = 0; i < users.size(); i++) {
@@ -125,9 +143,14 @@ public class AnalyzeController {
                         analyzeView.salesPerLocation (users.get(i), orders);
                     }
                 }
-            } else if (a == 4) {
+            }
+
+            else if (a == 4) {
                 System.out.println("ok - just finished this editing program");
-            } else {
+
+            }
+
+            else {
                 System.out.println("This input wasn't correct.");
             }
         }

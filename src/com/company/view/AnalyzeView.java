@@ -1,5 +1,6 @@
 package com.company.view;
 
+import com.company.model.Meal;
 import com.company.model.Order;
 import com.company.model.User;
 
@@ -69,10 +70,45 @@ public class AnalyzeView {
 
     public void salesPerLocation (User user, ArrayList<Order> orders) {
         double salesInTotal = 0;
-        for (int i = 0; i < orders.size(); i++) {
-            salesInTotal = salesInTotal + orders.get(i).getPriceInTotal();
+        for (Order order : orders) {
+            salesInTotal = salesInTotal + order.getPriceInTotal();
         }
         System.out.println(df.format(salesInTotal) + "€ in Total from " + user.getLocation());
 
+    }
+
+    public void soldTheMost (ArrayList<Meal> meals, ArrayList<Integer> amounts) {
+        if (meals.size()>1){
+            for (int i = 0; i < meals.size(); i++) {
+                if (amounts.get(i) > amounts.get(i+1)){
+                    System.out.println(meals.get(i).getName() + " was/were sold the most (" + amounts.get(i) + " time[s])");
+                    break;
+                }
+                else {
+                    System.out.print(meals.get(i).getName() + ", ");
+                }
+
+            }
+        } else {
+            System.out.println(meals.get(0).getName() + " was/were sold the most (" + amounts.get(0) + " time[s])");
+
+        }
+    }
+
+    public void listOfSoldTheMost(ArrayList<Meal> meals, ArrayList<Integer> amounts) {
+        if (meals.size()>1){
+            for (int i = 0; i < meals.size(); i++) {
+                if (amounts.get(i) > amounts.get(i+1)){
+                    System.out.println(meals.get(i).getName() + " was/were sold the most (" + amounts.get(i) + " time[s])");
+                }
+                else {
+                    System.out.print(meals.get(i).getName() + ", ");
+                }
+
+            }
+        } else {
+            System.out.println(meals.get(0).getName() + " was/were sold the most (" + amounts.get(0) + " time[s])");
+
+        }
     }
 }

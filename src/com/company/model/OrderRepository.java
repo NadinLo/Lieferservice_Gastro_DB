@@ -260,5 +260,31 @@ public class OrderRepository implements IRepository {
         return priceExtraIngredients;
     }
 
+    public ArrayList<ArrayList<Integer>> soldTheMost () {
+        ResultSet rs = dbConnector.fetchData("SELECT menu_auswahl.menu_nr, COUNT(menu_auswahl.menu_nr) " +
+                "FROM `menu_auswahl` " +
+                "GROUP BY menu_auswahl.menu_nr " +
+                "ORDER BY COUNT(menu_auswahl.menu_nr) DESC");
+        ArrayList<Integer> mealNo = new ArrayList<>();
+        ArrayList<Integer> amounts = new ArrayList<>();
+        try {
+            while (rs.next()) {
+                mealNo.add(rs.getInt("menu_auswahl.menu_nr"));
+                amounts.add(rs.getInt("COUNT(menu_auswahl.menu_nr)"));
+            }
+            ArrayList <ArrayList <Integer> > soldTheMost = new ArrayList<>(2);
+            soldTheMost.add(mealNo);
+            soldTheMost.add(amounts);
+            return soldTheMost;
+        } catch (SQLException ex) {
+            System.out.println("couldn't get data for sold the most");
+            ex.printStackTrace();
+        } finally {
+            dbConnector.closeConnection();
+        }
+        return null;
+
+    }
+
 
 }
