@@ -3,11 +3,13 @@ package com.company.view;
 import com.company.model.Order;
 import com.company.model.User;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Scanner;
 
 public class AnalyzeView {
     Scanner scannerForInt = new Scanner(System.in);
+    DecimalFormat df = new DecimalFormat("##.##");
 
     public int analyzeMenu() {
         System.out.println("You have now following possibilities:");
@@ -36,46 +38,41 @@ public class AnalyzeView {
         System.out.println(orders.size() + " till now");
     }
 
-    public void countOrdersPerCustomer (ArrayList<User> users){
-        int count = 1;
-        for (int i = 0; i < users.size(); i++) {
-            if (users.size() > 1) {
-                if (i > 0) {
-                    if (users.get(i).getLocation().equalsIgnoreCase(users.get(i - 1).getLocation()) &&
-                            users.get(i).getAddress().equalsIgnoreCase(users.get(i - 1).getAddress()) &&
-                            users.get(i).getName().equalsIgnoreCase(users.get(i - 1).getName()) &&
-                            i < users.size() - 1) {
-                        count++;
-                    }
-                    else if ( !(users.get(i).getLocation().equalsIgnoreCase(users.get(i - 1).getLocation()) &&
-                            users.get(i).getAddress().equalsIgnoreCase(users.get(i - 1).getAddress()) &&
-                            users.get(i).getName().equalsIgnoreCase(users.get(i - 1).getName())) || i == users.size()-1) {
-                        System.out.println(users.get(i-1).getName() + ", " + users.get(i-1).getAddress() + ", " +
-                                users.get(i-1).getLocation() + " ordered " + count + " times");
-                        count = 1;
-                    }
-                }
-            }
+    public void countOrdersPerCustomer (User user, ArrayList<Order> orders){
+        System.out.println(user.getName() + ", " + user.getAddress() + ", " + user.getLocation() + " ordered " +
+                orders.size() + " time(s)");
 
-        }
     }
 
-    public void countPerLocation (ArrayList<User> users){
-        int count = 1;
-        for (int i = 0; i < users.size(); i++) {
-            if (users.size() > 1) {
-                if (i > 0) {
-                    if (users.get(i).getLocation().equalsIgnoreCase(users.get(i - 1).getLocation()) &&
-                            i < users.size() - 1) {
-                        count++;
-                    }
-                    else if ( !(users.get(i).getLocation().equalsIgnoreCase(users.get(i - 1).getLocation())) || i == users.size()-1) {
-                        System.out.println(count + " orders from " + users.get(i-1).getLocation());
-                        count = 1;
-                    }
-                }
-            }
+    public void countPerLocation (User user, ArrayList<Order> orders){
+        System.out.println(orders.size() + " order(s) from " + user.getLocation());
+    }
+
+    public void salesInTotal (ArrayList<Order> orders){
+        double salesInTotal = 0;
+        for (Order order : orders) {
+            salesInTotal = salesInTotal + order.getPriceInTotal();
 
         }
+        System.out.println("Sales in Total: " + df.format(salesInTotal) + "€");
+    }
+
+    public void salesPerCustomer(User user, ArrayList<Order> orders){
+        double salesInTotal = 0;
+        for (Order order : orders) {
+            salesInTotal = salesInTotal + order.getPriceInTotal();
+        }
+        System.out.println(user.getName() + ", " + user.getAddress() + ", " + user.getLocation() +
+                " ordered for " + df.format(salesInTotal) + "€ in total");
+
+    }
+
+    public void salesPerLocation (User user, ArrayList<Order> orders) {
+        double salesInTotal = 0;
+        for (int i = 0; i < orders.size(); i++) {
+            salesInTotal = salesInTotal + orders.get(i).getPriceInTotal();
+        }
+        System.out.println(df.format(salesInTotal) + "€ in Total from " + user.getLocation());
+
     }
 }

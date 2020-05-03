@@ -5,7 +5,7 @@ import java.util.ArrayList;
 public class Order {
     private int orderNo;
     private ArrayList<Meal> chosenMeals = new ArrayList<>();
-    private double priceInTotal = getPriceInTotal();
+    private double priceInTotal;
     private int deliveryZone;
     private double deliveryFee;
 
@@ -27,13 +27,6 @@ public class Order {
         return chosenMeals;
     }
 
-    public double getPriceInTotal() {
-        for (Meal chosenMeal : this.chosenMeals) {
-            priceInTotal = priceInTotal + chosenMeal.getMenuPriceInTotal();
-        }
-        return priceInTotal;
-    }
-
     public int getDeliveryZone() {
         return deliveryZone;
     }
@@ -50,4 +43,15 @@ public class Order {
         this.deliveryFee = deliveryFee;
     }
 
+    public void setChosenMeals(ArrayList<Meal> chosenMeals) {
+        this.chosenMeals = chosenMeals;
+    }
+
+    public void setPriceInTotal(double priceInTotal) {
+        this.priceInTotal = priceInTotal;
+    }
+
+    public double getPriceInTotal() {
+        return priceInTotal;
+    }
 }

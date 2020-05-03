@@ -88,4 +88,16 @@ public class Meal {
     public void setId(int id) {
         this.id = id;
     }
+
+    public void setAddIngredients(ArrayList<Ingredient> addIngredients) {
+        this.addIngredients = addIngredients;
+    }
+
+    public void setTakeOffIngredients(ArrayList<Ingredient> takeOffIngredients) {
+        this.takeOffIngredients = takeOffIngredients;
+    }
+
+    public void setMenuPriceInTotal(double menuPriceInTotal) {
+        this.menuPriceInTotal = menuPriceInTotal;
+    }
 }

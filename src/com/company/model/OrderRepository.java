@@ -9,6 +9,8 @@ import java.util.List;
 public class OrderRepository implements IRepository {
 
     private DBConnector dbConnector;
+    private MealRepository mealRepository = new MealRepository();
+    private IngredientRepository ingredientRepository = new IngredientRepository();
 
     public OrderRepository() {
         this.dbConnector = DBConnector.getInstance();
@@ -22,6 +24,7 @@ public class OrderRepository implements IRepository {
             while (rs.next()){
                 Order order = new Order();
                 order.setOrderNo(rs.getInt("bestellnr"));
+                order.setChosenMeals(orderDetails (order));
                 orders.add(order);
             }
             return orders;
@@ -35,8 +38,14 @@ public class OrderRepository implements IRepository {
     }
 
     @Override
-    public Object findOne(int id) {
-        return null;
+    public Order findOne(int id) {
+
+                Order order = new Order();
+                order.setOrderNo(id);
+                order.setChosenMeals(orderDetails (order));
+
+            return order;
+
     }
 
     @Override
@@ -165,6 +174,90 @@ public class OrderRepository implements IRepository {
             ex.printStackTrace();
         }
         return false;
+    }
+
+    public ArrayList<Meal> orderDetails (Order order) {
+        ArrayList<Meal> orderedMeals = new ArrayList<>();
+        ResultSet rs = dbConnector.fetchData("SELECT * FROM `menu_auswahl` WHERE `bestell_nr` = " + order.getOrderNo());
+        try {
+            while (rs.next()){
+                int orderDetailId = rs.getInt("id_detail_auswahl");
+                int amount = rs.getInt("anzahl");
+                int mealNo = rs.getInt("menu_nr");
+                Meal meal = mealRepository.findOne(mealNo);
+                meal.setAmount(amount);
+                meal.setAddIngredients(getAddedIngredients(orderDetailId));
+                meal.setTakeOffIngredients(getTookOffIngredients(orderDetailId));
+                meal.setMenuPriceInTotal(meal.getMenuPrice()
+                        + priceExtraIngredients(meal.getAddIngredients())
+                        - priceExtraIngredients(meal.getTakeOffIngredients()));
+                orderedMeals.add(meal);
+                order.setPriceInTotal(order.getPriceInTotal() + meal.getMenuPriceInTotal());
+            }
+            return orderedMeals;
+        } catch (SQLException ex) {
+            System.out.println("couldn't get order Details");
+            ex.printStackTrace();
+        } finally {
+            dbConnector.closeConnection();
+        }
+        return null;
+    }
+
+    private ArrayList <Ingredient> getAddedIngredients(int orderDetailId) {
+        ResultSet rs = dbConnector.fetchData("SELECT * FROM `zutaten_hinzuf` WHERE `id_detail_auswahl` = " + orderDetailId);
+        ArrayList<Ingredient> addedIngredients = new ArrayList<>();
+        try {
+            if (rs != null) {
+                while (rs.next()) {
+                    Ingredient ingredient = ingredientRepository.findOne(rs.getInt("zutaten_id"));
+                    addedIngredients.add(ingredient);
+                }
+                return addedIngredients;
+            }
+            else {
+                System.out.println("no added ingredients");
+            }
+        } catch (SQLException ex ){
+            System.out.println("couldn't find added ingredients");
+            ex.printStackTrace();
+        } finally {
+            dbConnector.closeConnection();
+        }
+        return null;
+    }
+
+    private ArrayList <Ingredient> getTookOffIngredients(int orderDetailId) {
+        ResultSet rs = dbConnector.fetchData("SELECT * FROM `zutaten_entfernen` WHERE `id_detail_auswahl` = " + orderDetailId);
+        ArrayList<Ingredient> tookOffIngredients = new ArrayList<>();
+        try {
+            if (rs != null) {
+                while (rs.next()) {
+                    Ingredient ingredient = ingredientRepository.findOne(rs.getInt("zutaten_id"));
+                    tookOffIngredients.add(ingredient);
+                }
+                return tookOffIngredients;
+            }
+            else {
+                System.out.println("no deleted ingredients");
+            }
+        } catch (SQLException ex ){
+            System.out.println("couldn't find deleted ingredients");
+            ex.printStackTrace();
+        } finally {
+            dbConnector.closeConnection();
+        }
+        return null;
+    }
+
+    private double priceExtraIngredients (ArrayList<Ingredient> ingredients) {
+        double priceExtraIngredients = 0;
+        if (ingredients.size() != 0){
+            for (Ingredient ingredient : ingredients) {
+                priceExtraIngredients = priceExtraIngredients + ingredient.getSinglePrice();
+            }
+        }
+        return priceExtraIngredients;
     }
 
 
