@@ -145,32 +145,6 @@ public class MealRepository implements IRepository {
         return types;
     }
 
-    private boolean statusInProgress (Order order) {
-        ResultSet rs = dbConnector.fetchData("SELECT `abgeschlossen` FROM `bestellung` WHERE `bestellnr` = " + order.getOrderNo());
-        try {
-            if (rs.next()){
-                if (rs.getInt("abgeschlossen") == 0){
-                    return true;
-                }
-            }
-        } catch (SQLException ex){
-            System.out.println("couldn't get status of order");
-            ex.printStackTrace();
-        }
-        return false;
-    }
-
-    public void deleteOrderDetails (Order order) {
-        if (statusInProgress(order)){
-            for (int i = 0; i < order.getChosenMeals().size(); i++) {
-                if(!dbConnector.delete("DELETE FROM `zutaten_hinzuf` WHERE `id_detail_auswahl` = " + order.getChosenMeals().get(i).getOrderDetailsID()) ||
-                        !dbConnector.delete("DELETE FROM `zutaten_entfernen` WHERE `id_detail_auswahl` = " + order.getChosenMeals().get(i).getOrderDetailsID())){
-                    return;
-                }
-            }
-        }
-    }
-
     public void updateMealIngredient (int mealId, int ingredientID) {
         Meal meal = findOne(mealId);
         if (ingredientID < 0) {

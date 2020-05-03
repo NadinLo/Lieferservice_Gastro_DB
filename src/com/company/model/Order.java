@@ -27,16 +27,8 @@ public class Order {
         return chosenMeals;
     }
 
-    public int getDeliveryZone() {
-        return deliveryZone;
-    }
-
     public void setDeliveryZone(int deliveryZone) {
         this.deliveryZone = deliveryZone;
-    }
-
-    public double getDeliveryFee() {
-        return deliveryFee;
     }
 
     public void setDeliveryFee(double deliveryFee) {

@@ -20,7 +20,8 @@ public class AnalyzeController {
             if (decision == 1) {
                 //how many orders were taken place till now?
                 analyzeView.countAllOrders(orderRepository.findAll());
-            } else if (decision == 2) {
+            }
+            else if (decision == 2) {
                 //how many orders were taken place for each customer?
                 ArrayList<User> users = userRepository.findAll();
                 ArrayList<Order> orders = new ArrayList<>();
@@ -41,7 +42,8 @@ public class AnalyzeController {
                     }
                 }
 
-            } else if (decision == 3) {
+            }
+            else if (decision == 3) {
                 //how many orders were taken place for each location?
                 ArrayList<User> users = userRepository.findAll();
                 ArrayList<Order> orders = new ArrayList<>();
@@ -59,10 +61,12 @@ public class AnalyzeController {
                         analyzeView.countPerLocation(users.get(i), orders);
                     }
                 }
-            } else if (decision == 4) {
+            }
+            else if (decision == 4) {
                 //Sales in total/ per customer/ per location => to next menu
-                analyzeSale(0);
-            } else if (decision == 5) {
+                analyzeSale();
+            }
+            else if (decision == 5) {
                 //todo:
                 //What was soled the most and how often?
                 ArrayList<ArrayList<Integer>> soldTheMost = orderRepository.soldTheMost();
@@ -73,8 +77,8 @@ public class AnalyzeController {
                     meals.add(mealRepository.findOne(integer));
                 }
                 analyzeView.soldTheMost(meals, amount);
-            } else if (decision == 6) {
-                //todo:
+            }
+            else if (decision == 6) {
                 //Order of the sold menus - the most successful is named first
                 ArrayList<ArrayList<Integer>> soldTheMost = orderRepository.soldTheMost();
                 ArrayList<Integer> mealNo = soldTheMost.get(0);
@@ -85,15 +89,20 @@ public class AnalyzeController {
                 }
                 analyzeView.listOfSoldTheMost(meals, amount);
 
-            } else if (decision == 7) {
+            }
+
+            else if (decision == 7) {
                 System.out.println("ok - just finished this editing program");
-            } else {
+            }
+
+            else {
                 System.out.println("This input wasn't correct.");
             }
         }
     }
 
-    private void analyzeSale (int a) {
+    private void analyzeSale () {
+        int a = 0;
         while (a != 4) {
             a = analyzeView.analyzeSaleMenu();
 

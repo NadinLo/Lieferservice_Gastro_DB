@@ -77,10 +77,6 @@ public class Meal {
         return menuPriceInTotal;
     }
 
-    public int getOrderDetailsID() {
-        return orderDetailsID;
-    }
-
     public void setOrderDetailsID(int orderDetailsID) {
         this.orderDetailsID = orderDetailsID;
     }
